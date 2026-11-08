@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Cloud Microservices — Comprehensive Section Testing & Verification Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* -------------------------------------------------------------
+       THEME CONFIGURATION (60-30-10 Dark Palette)
+       60% Dominant Background: #090a0f, #0d0f17
+       30% Structural Grays: #161922, #1f2432, #293042, #94a3b8
+       10% High-Contrast Accent: #ffffff, #f8fafc, crisp borders #333c52
+       ------------------------------------------------------------- */
+    :root {
+      --bg-base: #090a0f;
+      --bg-surface: #0f1118;
+      --bg-card: #151822;
+      --bg-card-hover: #1a1e2b;
+      --bg-inset: #0c0d13;
+      --bg-code: #0b0c12;
+      
+      --border-subtle: #202534;
+      --border-default: #2a3144;
+      --border-focus: #4b556e;
+      --border-accent: #ffffff;
+      
+      --text-white: #ffffff;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --badge-get-bg: #0c2838;
+      --badge-get-text: #38bdf8;
+      --badge-post-bg: #092e22;
+      --badge-post-text: #34d399;
+      --badge-port-bg: #221a36;
+      --badge-port-text: #c084fc;
+      --badge-warn-bg: #302008;
+      --badge-warn-text: #fbbf24;
+      --badge-err-bg: #321115;
+      --badge-err-text: #f87171;
+
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-base);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-default);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--border-focus);
+    }
+
+    /* App Shell Layout */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sticky Sidebar Navigation */
+    .sidebar {
+      width: 320px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-white);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .search-box {
+      margin-top: 16px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-inset);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 14px 10px 36px;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--text-white);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .sidebar-nav {
+      padding: 16px 12px 32px 12px;
+      flex-grow: 1;
+    }
+
+    .nav-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 10px 12px 6px 12px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      margin-bottom: 2px;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-card);
+      color: var(--text-white);
+    }
+
+    .nav-item.active {
+      background: var(--bg-card);
+      color: var(--text-white);
+      border-left: 3px solid var(--text-white);
+    }
+
+    .nav-badge {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      background: var(--bg-inset);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex-grow: 1;
+      padding: 48px 56px 96px 56px;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-surface) 100%);
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      padding: 36px 40px;
+      margin-bottom: 48px;
+      position: relative;
+    }
+
+    .hero-badge-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--bg-inset);
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+    }
+
+    .pill-badge.white {
+      color: var(--text-white);
+      border-color: var(--border-focus);
+    }
+
+    .hero-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-white);
+      margin-bottom: 12px;
+      line-height: 1.25;
+    }
+
+    .hero-description {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 860px;
+      line-height: 1.6;
+    }
+
+    .entity-callout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .entity-box {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .entity-box h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-white);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .entity-box p {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Section Container */
+    .section-block {
+      margin-bottom: 64px;
+      scroll-margin-top: 32px;
+    }
+
+    .section-header {
+      border-bottom: 1px solid var(--border-default);
+      padding-bottom: 16px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+    }
+
+    .section-heading-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .section-tag {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-white);
+      letter-spacing: -0.02em;
+    }
+
+    .section-meta-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .meta-pill {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    /* Target Box (What the professor tests) */
+    .target-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .target-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-white);
+      margin-bottom: 10px;
+    }
+
+    .target-header svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: var(--text-white);
+      stroke-width: 2;
+    }
+
+    .target-content {
+      font-size: 14.5px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Test Case Card */
+    .test-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: 10px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      transition: border-color 0.15s ease;
+    }
+
+    .test-card:hover {
+      border-color: var(--border-focus);
+    }
+
+    .test-card-header {
+      padding: 16px 20px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .test-card-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .http-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .http-badge.get {
+      background: var(--badge-get-bg);
+      color: var(--badge-get-text);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .http-badge.post {
+      background: var(--badge-post-bg);
+      color: var(--badge-post-text);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .http-badge.cli {
+      background: var(--badge-port-bg);
+      color: var(--badge-port-text);
+      border: 1px solid rgba(192, 132, 252, 0.3);
+    }
+
+    .test-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-white);
+    }
+
+    .status-badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    .test-card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .test-instruction {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* Code & Command Blocks */
+    .code-container {
+      background: var(--bg-code);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .code-header {
+      padding: 8px 16px;
+      background: var(--bg-inset);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .copy-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-white);
+      border-color: var(--text-white);
+    }
+
+    .copy-btn.copied {
+      color: var(--badge-post-text);
+      border-color: var(--badge-post-text);
+    }
+
+    pre {
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+
+    /* Verification checklist */
+    .verify-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--bg-inset);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .verify-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .verify-item::before {
+      content: "✓";
+      color: var(--badge-post-text);
+      font-weight: 800;
+      font-family: var(--font-mono);
+      flex-shrink: 0;
+    }
+
+    /* Note & Tip Boxes */
+    .callout-box {
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .callout-box.tip {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+    }
+
+    .callout-box.warn {
+      background: var(--badge-warn-bg);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      color: #fde68a;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .app-layout {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--border-default);
+      }
+      .main-content {
+        padding: 24px 20px 64px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        Spring Cloud Test Suite
+      </div>
+      <div class="brand-subtitle">Course Verification Blueprint</div>
+      <div class="search-box">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search tests, ports, keywords...">
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+      <div class="nav-group-title">Foundations & Services</div>
+      <a href="#sec-02" class="nav-item"><span>Section 02: Creation of MS</span><span class="nav-badge">8080/8081</span></a>
+      <a href="#sec-03" class="nav-item"><span>Section 03: Communication</span><span class="nav-badge">Feign/WebClient</span></a>
+      <a href="#sec-04" class="nav-item"><span>Section 04: Eureka Discovery</span><span class="nav-badge">8761</span></a>
+      <a href="#sec-05" class="nav-item"><span>Section 05: API Gateway</span><span class="nav-badge">8888</span></a>
+      <a href="#sec-06" class="nav-item"><span>Section 06: Config Server</span><span class="nav-badge">9999</span></a>
+
+      <div class="nav-group-title" style="margin-top: 14px;">Containerization</div>
+      <a href="#sec-07" class="nav-item"><span>Section 07: Intro to Docker</span><span class="nav-badge">Dockerfile</span></a>
+      <a href="#sec-08" class="nav-item"><span>Section 08: MySQL as Docker</span><span class="nav-badge">3306</span></a>
+      <a href="#sec-09" class="nav-item"><span>Section 09: Dockerize Vos MS</span><span class="nav-badge">compose</span></a>
+
+      <div class="nav-group-title" style="margin-top: 14px;">Resilience & Cloud Bus</div>
+      <a href="#sec-10" class="nav-item"><span>Section 10: Spring Cloud Bus</span><span class="nav-badge">RabbitMQ</span></a>
+      <a href="#sec-11" class="nav-item"><span>Section 11: Resilience4J</span><span class="nav-badge">CircuitBreaker</span></a>
+
+      <div class="nav-group-title" style="margin-top: 14px;">Security & Events</div>
+      <a href="#sec-12" class="nav-item"><span>Section 12: Securing Gateway</span><span class="nav-badge">OAuth2/JWT</span></a>
+      <a href="#sec-13" class="nav-item"><span>Section 13: Securing Docker</span><span class="nav-badge">Keycloak+PG</span></a>
+      <a href="#sec-14" class="nav-item"><span>Section 14: Event RabbitMQ</span><span class="nav-badge">Stream</span></a>
+    </nav>
+  </aside>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content">
+
+    <!-- Hero -->
+    <header class="hero-banner">
+      <div class="hero-badge-row">
+        <span class="pill-badge white">Author: Rayen</span>
+        <span class="pill-badge">Spring Boot 3.4.1</span>
+        <span class="pill-badge">Spring Cloud 2024.0.0</span>
+        <span class="pill-badge">Java 21</span>
+      </div>
+      <h1 class="hero-title">Course Verification & Testing Guide</h1>
+      <p class="hero-description">
+        This document reproduces every single test case, targeted mechanism, and expected response from the professor’s original 13 course chapters. All endpoints use the substituted entities and author namespace so you can test and demonstrate your work with 100% confidence.
+      </p>
+
+      <div class="entity-callout">
+        <div class="entity-box">
+          <h4>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            Entity 1: Tournament (Replaces Department)
+          </h4>
+          <p>Port: 8080 &bull; fields: id, tournamentName ("Premier League"), tournamentCode ("PL")</p>
+        </div>
+        <div class="entity-box">
+          <h4>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Entity 2: Team (Replaces Teacher)
+          </h4>
+          <p>Port: 8081 &bull; fields: id, teamName ("Arsenal"), coachName ("Mikel Arteta"), tournamentCode ("PL")</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== SECTION 02 ==================== -->
+    <section class="section-block" id="sec-02" data-keywords="section 02 creation microservices jpa h2 dto 8080 8081">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 01 &bull; SECTION_02_CREA_MS</span>
+          <h2 class="section-title">Section 02: Creation of Microservices</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">Ports: 8080, 8081</span>
+          <span class="meta-pill">H2 In-Memory DB</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Build two completely autonomous, decoupled Spring Boot microservices with Spring Data JPA, separate in-memory H2 databases, DTO layers, and RESTful controllers. Verify that each microservice starts independently on its designated port and responds with clean JSON data populated via <code>CommandLineRunner</code>.
+        </div>
+      </div>
+
+      <!-- Test Case 1 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 1: Fetch Tournament by Code</span>
+          </div>
+          <span class="status-badge">Expected: 200 OK</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Start <code>tournament-microservice</code> and query the tournament endpoint with code <code>PL</code>.</p>
+          <div class="code-container">
+            <div class="code-header">
+              <span>cURL Request</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>curl -X GET http://localhost:8080/api/tournaments/PL</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Expected JSON Response</span></div>
+            <pre><code>{
+  "id": 1,
+  "tournamentName": "Premier League",
+  "tournamentCode": "PL"
+}</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Verify HTTP Status is <code>200 OK</code>.</li>
+            <li class="verify-item">Verify <code>tournamentCode</code> matches <code>"PL"</code> and name is <code>"Premier League"</code>.</li>
+            <li class="verify-item">Open browser to <code>http://localhost:8080/h2-console</code> (JDBC URL: <code>jdbc:h2:mem:tournamentdb</code>, User: <code>sa</code>, Password: empty) to verify the SQL table <code>TOURNAMENT</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Test Case 2 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 2: Fetch Team by ID (Autonomous)</span>
+          </div>
+          <span class="status-badge">Expected: 200 OK</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Start <code>team-microservice</code> on port 8081 and query team ID 1.</p>
+          <div class="code-container">
+            <div class="code-header">
+              <span>cURL Request</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>curl -X GET http://localhost:8081/api/teams/1</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Expected JSON Response</span></div>
+            <pre><code>{
+  "id": 1,
+  "teamName": "Arsenal",
+  "coachName": "Mikel Arteta",
+  "tournamentCode": "PL",
+  "tournamentName": null
+}</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Verify <code>tournamentName</code> is <code>null</code> because in Section 02 there is no inter-service communication yet.</li>
+            <li class="verify-item">Team database is isolated at <code>http://localhost:8081/h2-console</code> (JDBC URL: <code>jdbc:h2:mem:teamdb</code>).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 03 ==================== -->
+    <section class="section-block" id="sec-03" data-keywords="section 03 communication webclient openfeign feignclient 8080 8081">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 02 &bull; SECTION_03_COMM_MS</span>
+          <h2 class="section-title">Section 03: Inter-Microservice Communication</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">Spring Cloud OpenFeign</span>
+          <span class="meta-pill">Spring WebClient</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Establish synchronous REST communication between microservices. Team microservice queries Tournament microservice over HTTP using declarative Spring Cloud OpenFeign (<code>@FeignClient</code>) and reactive <code>WebClient</code>. Return an aggregated composite response (<code>APIResponseDto</code>) combining Team and Tournament details.
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 1: Fetch Composite Team & Tournament Details</span>
+          </div>
+          <span class="status-badge">Expected: 200 OK</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Ensure both <code>tournament-microservice</code> (8080) and <code>team-microservice</code> (8081) are running. Send request to Team service.</p>
+          <div class="code-container">
+            <div class="code-header">
+              <span>cURL Request</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>curl -X GET http://localhost:8081/api/teams/1</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Expected Composite Response (APIResponseDto)</span></div>
+            <pre><code>{
+  "teamDto": {
+    "id": 1,
+    "teamName": "Arsenal",
+    "coachName": "Mikel Arteta",
+    "tournamentCode": "PL",
+    "tournamentName": "Premier League"
+  },
+  "tournamentDto": {
+    "id": 1,
+    "tournamentName": "Premier League",
+    "tournamentCode": "PL"
+  }
+}</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Notice that <code>teamDto.tournamentName</code> is now populated with <code>"Premier League"</code> (retrieved from port 8080).</li>
+            <li class="verify-item">Both <code>teamDto</code> and <code>tournamentDto</code> are embedded inside <code>APIResponseDto</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 04 ==================== -->
+    <section class="section-block" id="sec-04" data-keywords="section 04 eureka netflix discovery registry failover loadbalancer 8761">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 03 &bull; SECTION_04_EUREKA</span>
+          <h2 class="section-title">Section 04: Netflix Eureka Service Registry & Discovery</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">Port: 8761</span>
+          <span class="meta-pill">Client-Side Load Balancing</span>
+          <span class="meta-pill">Failover</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Eliminate hardcoded URLs (<code>http://localhost:8080</code>). Microservices dynamically register with Eureka Server (8761) under logical names (<code>TOURNAMENT</code>, <code>TEAM</code>). OpenFeign resolves services via service discovery. Test failover and load balancing by launching multiple instances.
+        </div>
+      </div>
+
+      <!-- Test 1 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">WEB</span>
+            <span class="test-card-title">Test 1: Verify Eureka Service Registry Dashboard</span>
+          </div>
+          <span class="status-badge">HTTP Dashboard</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Start <code>eurekaserver</code> (8761), then start <code>tournament-microservice</code> and <code>team-microservice</code>.</p>
+          <div class="code-container">
+            <div class="code-header">
+              <span>Open in Web Browser</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>http://localhost:8761/</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Under <strong>Instances currently registered with Eureka</strong>, verify <code>TOURNAMENT</code> is listed with status <code>UP (1) - tournament:8080</code>.</li>
+            <li class="verify-item">Verify <code>TEAM</code> is listed with status <code>UP (1) - team:8081</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Test 2 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 2: Test Discovery-Backed Feign Call</span>
+          </div>
+          <span class="status-badge">Expected: 200 OK</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">The Feign client now uses <code>@FeignClient(name = "TOURNAMENT")</code> instead of a URL. Call Team API.</p>
+          <div class="code-container">
+            <div class="code-header">
+              <span>cURL Request</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>curl -X GET http://localhost:8081/api/teams/1</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Response returns full composite data without any hardcoded host or port in code.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Test 3 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge cli">LAB</span>
+            <span class="test-card-title">Test 3: Failover Test (Page 5 of Course Slide)</span>
+          </div>
+          <span class="status-badge">High Availability</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Launch a second instance of Tournament microservice on port 8084, then kill port 8080.</p>
+          <div class="code-container">
+            <div class="code-header"><span>Launch 2nd Instance</span></div>
+            <pre><code>cd SECTION_04_EUREKA/rayen-spring-cloud/tournament-microservice
+mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=8084"</code></pre>
+          </div>
+          <div class="callout-box tip">
+            Eureka dashboard now shows <code>TOURNAMENT: UP (2)</code> on ports 8080 and 8084. Stop the 8080 process, re-run <code>curl http://localhost:8081/api/teams/1</code>. The request succeeds seamlessly as client-side load balancing routes to 8084!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 05 ==================== -->
+    <section class="section-block" id="sec-05" data-keywords="section 05 gateway api spring cloud reactive routelocator 8888">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 04 &bull; SECTION_05_GATEWAY</span>
+          <h2 class="section-title">Section 05: Spring Cloud API Gateway</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">Port: 8888</span>
+          <span class="meta-pill">Reactive Netty</span>
+          <span class="meta-pill">lb:// Routing</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Provide a single unified entry point (port 8888) for all external clients. Test route discovery by uppercase service ID (<code>/TOURNAMENT/**</code>), lowercase service ID (<code>/tournament/**</code>), and clean declarative routing (<code>/api/tournaments/**</code> and <code>/api/teams/**</code>) mapped via Eureka load balancing (<code>lb://TOURNAMENT</code>, <code>lb://TEAM</code>).
+        </div>
+      </div>
+
+      <!-- Test 1 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 1: Inspect Gateway Routing Table</span>
+          </div>
+          <span class="status-badge">Actuator</span>
+        </div>
+        <div class="test-card-body">
+          <div class="code-container">
+            <div class="code-header">
+              <span>cURL Request</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>curl -X GET http://localhost:8888/actuator/gateway/routes</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Verify active route definitions for <code>TOURNAMENT</code> and <code>TEAM</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Test 2 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 2: Route to Tournament via Gateway</span>
+          </div>
+          <span class="status-badge">Expected: 200 OK</span>
+        </div>
+        <div class="test-card-body">
+          <div class="code-container">
+            <div class="code-header">
+              <span>cURL Request</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>curl -X GET http://localhost:8888/api/tournaments/PL</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Response (via Gateway 8888 -> lb://TOURNAMENT)</span></div>
+            <pre><code>{
+  "id": 1,
+  "tournamentName": "Premier League",
+  "tournamentCode": "PL"
+}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test 3 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 3: Route to Team via Gateway</span>
+          </div>
+          <span class="status-badge">Expected: 200 OK</span>
+        </div>
+        <div class="test-card-body">
+          <div class="code-container">
+            <div class="code-header">
+              <span>cURL Request</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>curl -X GET http://localhost:8888/api/teams/1</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Returns <code>APIResponseDto</code> forwarded from Team service.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 06 ==================== -->
+    <section class="section-block" id="sec-06" data-keywords="section 06 configserver profiles actuator refresh value 9999">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 05 &bull; SECTION_06_CONFIGSERVER</span>
+          <h2 class="section-title">Section 06: Spring Cloud Config Server</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">Port: 9999</span>
+          <span class="meta-pill">Profiles: prod, qa</span>
+          <span class="meta-pill">/actuator/refresh</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Centralize application configuration across all microservices using Spring Cloud Config Server. Test profile resolution (<code>default</code>, <code>qa</code>, <code>prod</code>), <code>@Value</code> injection, <code>@ConfigurationProperties</code> mapping, and dynamic zero-downtime property refresh using Spring Boot Actuator.
+        </div>
+      </div>
+
+      <!-- Test 1 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 1: Inspect Config Server Directly</span>
+          </div>
+          <span class="status-badge">Expected: 200 OK</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Query Config Server on port 9999 for the <code>prod</code> profile of Tournament service.</p>
+          <div class="code-container">
+            <div class="code-header">
+              <span>cURL Request</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>curl -X GET http://localhost:9999/tournament/prod</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Returns JSON propertySources showing active properties loaded from <code>config-repo/tournament-prod.yml</code>.</li>
+            <li class="verify-item">Try also: <code>curl http://localhost:9999/tournament/qa</code> and <code>curl http://localhost:9999/team/prod</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Test 2 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 2: Verify Injected @Value and @ConfigurationProperties</span>
+          </div>
+          <span class="status-badge">Expected: 200 OK</span>
+        </div>
+        <div class="test-card-body">
+          <div class="code-container">
+            <div class="code-header">
+              <span>cURL Request 1: @Value("${build.version}")</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>curl -X GET http://localhost:8080/api/tournaments/version</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header">
+              <span>cURL Request 2: @ConfigurationProperties(prefix = "author")</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>curl -X GET http://localhost:8080/api/tournaments/author</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Expected Output</span></div>
+            <pre><code>rayen rayenb@yahoo.com</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test 3 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge post">POST</span>
+            <span class="test-card-title">Test 3: Zero-Downtime Actuator Refresh</span>
+          </div>
+          <span class="status-badge">Expected: 200 OK</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Edit <code>build.version</code> inside <code>config-repo/tournament-prod.yml</code> to <code>"2.0"</code>. Send refresh request without restarting the service.</p>
+          <div class="code-container">
+            <div class="code-header">
+              <span>cURL Request</span>
+              <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            <pre><code>curl -X POST http://localhost:8080/actuator/refresh -H "Content-Type: application/json"</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Response</span></div>
+            <pre><code>["build.version"]</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Re-run <code>curl http://localhost:8080/api/tournaments/version</code> -> Returns updated <code>"2.0"</code>!</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 07 ==================== -->
+    <section class="section-block" id="sec-07" data-keywords="section 07 docker container image temurin 21 jar package 8080">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 06 &bull; SECTION_07_Intro_to_Docker</span>
+          <h2 class="section-title">Section 07: Introduction to Docker</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">Eclipse Temurin 21 JDK</span>
+          <span class="meta-pill">rayen/tournaments:v1</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Package Java Spring Boot executable JAR files into reproducible OCI Docker containers using a multi-stage or Temurin 21 base image. Tag image as <code>rayen/tournaments:v1</code>, launch in background (<code>-d</code>), forward host port 8080, and verify endpoints.
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge cli">DOCKER</span>
+            <span class="test-card-title">Test 1: Build & Run Docker Container</span>
+          </div>
+          <span class="status-badge">CLI Execution</span>
+        </div>
+        <div class="test-card-body">
+          <div class="code-container">
+            <div class="code-header"><span>Step 1: Build JAR</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>cd "SECTION_07_Intro_to_Docker/rayen-spring-cloud/tournament-microservice"
+mvn clean package -DskipTests</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Step 2: Build & Run Container</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>docker build . -t rayen/tournaments:v1
+docker run -d -p 8080:8080 --name tournaments-service rayen/tournaments:v1</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Step 3: Test Running Container</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -X GET http://localhost:8080/api/tournaments/PL</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Inspect logs: <code>docker logs tournaments-service</code>.</li>
+            <li class="verify-item">Clean up when done: <code>docker stop tournaments-service && docker rm tournaments-service</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 08 ==================== -->
+    <section class="section-block" id="sec-08" data-keywords="section 08 mysql docker network compose database datasource 3306">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 07 &bull; SECTION_08_Mysql_As_Docker</span>
+          <h2 class="section-title">Section 08: MySQL as Docker Container</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">Port: 3306</span>
+          <span class="meta-pill">Docker Network</span>
+          <span class="meta-pill">Docker Compose</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Replace ephemeral H2 database with a persistent MySQL server running in a container. Verify inter-container networking (<code>my-net</code>) where the Spring Boot service connects to MySQL via hostname <code>mysqldb:3306</code>. Then automate via <code>docker-compose.yml</code>.
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge cli">COMPOSE</span>
+            <span class="test-card-title">Test 1: Launch MySQL + Tournament Stack</span>
+          </div>
+          <span class="status-badge">docker-compose</span>
+        </div>
+        <div class="test-card-body">
+          <div class="code-container">
+            <div class="code-header"><span>Command</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>cd "SECTION_08_Mysql_As_Docker/rayen-spring-cloud"
+docker compose up -d</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Verify API & DB Table</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -X GET http://localhost:8080/api/tournaments/PL
+docker exec -it mysqldb mysql -uroot -proot -e "USE test; SELECT * FROM tournament;"</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Verify that MySQL contains the table <code>tournament</code> with row <code>Premier League | PL</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 09 ==================== -->
+    <section class="section-block" id="sec-09" data-keywords="section 09 docker compose orchestration multi container healthcheck">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 08 &bull; SECTION_09_DOCKERIZE_VOS_MS</span>
+          <h2 class="section-title">Section 09: Full Docker Compose Orchestration</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">6 Services</span>
+          <span class="meta-pill">Healthchecks</span>
+          <span class="meta-pill">Dependency Ordering</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Containerize and orchestrate the entire Spring Cloud ecosystem: <code>eurekaserver</code>, <code>configserver</code>, 2 tournament instances (<code>tournaments-ms</code> and <code>tournaments-ms2</code>), <code>teams-ms</code>, and <code>gatewayserver</code> using healthcheck conditions (<code>service_healthy</code>).
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge cli">COMPOSE</span>
+            <span class="test-card-title">Test 1: Launch & Verify All Containers Healthy</span>
+          </div>
+          <span class="status-badge">Full Stack</span>
+        </div>
+        <div class="test-card-body">
+          <div class="code-container">
+            <div class="code-header"><span>Launch All</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>cd "SECTION_09_DOCKERIZE_VOS_MS/rayen-spring-cloud"
+mvn clean package -DskipTests
+docker compose up -d
+docker compose ps</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Test Gateway Entry Point</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -X GET http://localhost:8888/api/tournaments/PL
+curl -X GET http://localhost:8888/api/teams/1</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">All containers show <code>healthy</code> in <code>docker compose ps</code>.</li>
+            <li class="verify-item">Gateway load-balances between <code>tournaments-ms</code> and <code>tournaments-ms2</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 10 ==================== -->
+    <section class="section-block" id="sec-10" data-keywords="section 10 cloud bus rabbitmq busrefresh distributed 5672 15672">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 09 &bull; SECTION_10_Cloud Bus</span>
+          <h2 class="section-title">Section 10: Spring Cloud Bus & RabbitMQ</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">RabbitMQ: 5672</span>
+          <span class="meta-pill">Management UI: 15672</span>
+          <span class="meta-pill">/actuator/busrefresh</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Broadcast configuration changes to multiple microservice instances simultaneously via RabbitMQ AMQP message broker. Eliminates the need to call <code>/actuator/refresh</code> on every single node. Calling <code>/actuator/busrefresh</code> on one service automatically reloads configurations on all instances!
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge post">POST</span>
+            <span class="test-card-title">Test 1: Broadcast Refresh across Microservice Fleet</span>
+          </div>
+          <span class="status-badge">AMQP Event</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Modify <code>build.version</code> in <code>config-repo/tournament-prod.yml</code>. Trigger busrefresh on port 8080.</p>
+          <div class="code-container">
+            <div class="code-header"><span>Step 1: Broadcast Bus Refresh</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -X POST http://localhost:8080/actuator/busrefresh</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Step 2: Verify Multiple Instances Updated</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -X GET http://localhost:8080/api/tournaments/version
+curl -X GET http://localhost:8084/api/tournaments/version</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Both port 8080 and port 8084 return the updated version simultaneously.</li>
+            <li class="verify-item">Visit RabbitMQ Management at <code>http://localhost:15672</code> (guest/guest) &rarr; Queues &rarr; observe <code>springCloudBus</code> topic traffic.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 11 ==================== -->
+    <section class="section-block" id="sec-11" data-keywords="section 11 resilience4j circuitbreaker fallback contactadmin openfeign">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 10 &bull; SECTION_11_Resilience4J</span>
+          <h2 class="section-title">Section 11: Resilience4J Circuit Breaker</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">OpenFeign Fallback</span>
+          <span class="meta-pill">Gateway Fallback</span>
+          <span class="meta-pill">/contactAdmin</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Prevent cascading failures when microservices crash or slow down. Implement Circuit Breaker with Resilience4J in two places:
+          1. <strong>OpenFeign in Team MS</strong>: Uses <code>TournamentFallBack</code> to return fallback data (<code>"NOT AVAILABLE"</code>) when Tournament service is down.
+          2. <strong>API Gateway</strong>: Route filter intercepts Team service failure and forwards to <code>/contactAdmin</code> returning <code>503 SERVICE_UNAVAILABLE</code>.
+        </div>
+      </div>
+
+      <!-- Test 1 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 1: Feign Fallback when Tournament MS is Offline</span>
+          </div>
+          <span class="status-badge">Graceful Degradation</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Stop <code>tournament-microservice</code>. Call Team API on port 8081.</p>
+          <div class="code-container">
+            <div class="code-header"><span>cURL Request</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -X GET http://localhost:8081/api/teams/1</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Expected Fallback Response</span></div>
+            <pre><code>{
+  "teamDto": {
+    "id": 1,
+    "teamName": "Arsenal",
+    "coachName": "Mikel Arteta",
+    "tournamentCode": "PL",
+    "tournamentName": "NOT AVAILABLE"
+  },
+  "tournamentDto": null
+}</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Notice <code>tournamentName</code> gracefully returns <code>"NOT AVAILABLE"</code> without throwing NullPointerException or HTTP 500 error!</li>
+            <li class="verify-item">Inspect Circuit Breaker state: <code>curl http://localhost:8081/actuator/circuitbreakers</code>.</li>
+            <li class="verify-item">Send 10 requests to breach <code>failureRateThreshold: 50%</code> &rarr; Circuit transitions from <code>CLOSED</code> to <code>OPEN</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Test 2 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 2: Gateway Circuit Breaker & /contactAdmin Forward</span>
+          </div>
+          <span class="status-badge">Expected: 503 Service Unavailable</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Stop <code>team-microservice</code>. Call the team endpoint through Gateway on port 8888.</p>
+          <div class="code-container">
+            <div class="code-header"><span>cURL Request</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -i -X GET http://localhost:8888/api/teams/1</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Expected Response (Status 503)</span></div>
+            <pre><code>HTTP/1.1 503 Service Unavailable
+Content-Type: text/plain;charset=UTF-8
+
+An error occurred. Please contact the administrator. !</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Inspect gateway circuit breaker events: <code>http://localhost:8888/actuator/circuitbreakerevents?name=teamCircuitBreaker</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 12 ==================== -->
+    <section class="section-block" id="sec-12" data-keywords="section 12 security gateway keycloak oauth2 jwt rbac admin 8090 8888">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 11 &bull; SECTION_12_Securing_gateway</span>
+          <h2 class="section-title">Section 12: Securing Gateway with Keycloak & RBAC</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">Keycloak: 8090</span>
+          <span class="meta-pill">OAuth2 Resource Server</span>
+          <span class="meta-pill">Role: ADMIN</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Secure the microservice architecture using an external OAuth2 / OIDC Identity Provider (Keycloak). Configure Spring Cloud Gateway as an OAuth2 Resource Server validating JWT tokens via JWK Set URI. Extract roles using custom <code>KeycloakRoleConverter</code> and enforce Role-Based Access Control (RBAC):
+          &bull; <code>/api/tournaments/**</code> requires <strong>ROLE_ADMIN</strong>.
+          &bull; <code>/api/teams/**</code> requires <strong>authenticated</strong>.
+        </div>
+      </div>
+
+      <!-- Test 1 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge post">TOKEN</span>
+            <span class="test-card-title">Test 1: Obtain Access Token from Keycloak</span>
+          </div>
+          <span class="status-badge">Client Credentials</span>
+        </div>
+        <div class="test-card-body">
+          <div class="code-container">
+            <div class="code-header"><span>Start Keycloak</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>docker run -d -p 8090:8080 --name keycloak -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:26.3.4 start-dev</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Fetch Token via cURL / Postman</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -X POST http://localhost:8090/realms/master/protocol/openid-connect/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials&client_id=dept-app&client_secret=YOUR_CLIENT_SECRET"</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test 2 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">SECURITY</span>
+            <span class="test-card-title">Test 2: Test 401 Unauthorized vs 200 OK with Token</span>
+          </div>
+          <span class="status-badge">RBAC Verification</span>
+        </div>
+        <div class="test-card-body">
+          <div class="code-container">
+            <div class="code-header"><span>Call without Token (Rejected)</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -i -X GET http://localhost:8888/api/tournaments/PL</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Expected 401 Response</span></div>
+            <pre><code>HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Call with Valid ADMIN Token (Accepted)</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -X GET http://localhost:8888/api/tournaments/PL -H "Authorization: Bearer YOUR_ACCESS_TOKEN"</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Without token: Returns <code>401 Unauthorized</code>.</li>
+            <li class="verify-item">With token containing <code>ADMIN</code> role: Returns <code>200 OK</code>.</li>
+            <li class="verify-item">Remove <code>ADMIN</code> role from client in Keycloak &rarr; re-request token &rarr; call returns <code>403 Forbidden</code>!</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 13 ==================== -->
+    <section class="section-block" id="sec-13" data-keywords="section 13 securing docker keycloak postgres isolation perimeter 8090 8888">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 13 &bull; SECTION_13_Securing_Docker</span>
+          <h2 class="section-title">Section 13: Containerized Security & Docker Isolation</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">PostgreSQL 16 Persistence</span>
+          <span class="meta-pill">Zero Internal Port Exposure</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Build a production-grade secured container environment:
+          1. <strong>Data Persistence</strong>: Keycloak is backed by a PostgreSQL container with volume <code>kc_pg_data</code> so configurations survive container restarts.
+          2. <strong>Perimeter Isolation</strong>: Remove host port mappings on all internal microservices (Eureka, Config, Tournament, Team). ONLY <code>gatewayserver</code> (8888) and <code>keycloak</code> (8090) are exposed to the host!
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge cli">ISOLATION</span>
+            <span class="test-card-title">Test 1: Verify Network Perimeter Defense</span>
+          </div>
+          <span class="status-badge">Port Security Check</span>
+        </div>
+        <div class="test-card-body">
+          <div class="code-container">
+            <div class="code-header"><span>Launch Secured Stack</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>cd "SECTION_13_Securing_Docker/rayen-spring-cloud"
+docker compose up -d</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Test Direct Access to Internal Microservices (Must Fail)</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -i http://localhost:8080/api/tournaments/PL
+curl -i http://localhost:8081/api/teams/1
+curl -i http://localhost:8761/</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Direct connections fail with <code>Failed to connect / Connection refused</code> because ports are not exposed on host.</li>
+            <li class="verify-item">Call through Gateway with Bearer token: <code>curl http://localhost:8888/api/tournaments/PL -H "Authorization: Bearer ..."</code> &rarr; Succeeded (<code>200 OK</code>)!</li>
+            <li class="verify-item">Restart stack: <code>docker compose down && docker compose up -d</code> &rarr; Log in to Keycloak; clients and roles remain intact thanks to PostgreSQL volume!</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 14 ==================== -->
+    <section class="section-block" id="sec-14" data-keywords="section 14 event driven rabbitmq spring cloud stream message 9010 create communication">
+      <div class="section-header">
+        <div class="section-heading-wrap">
+          <span class="section-tag">PDF 14 &bull; SECTION_14_Event_RabbitMQ</span>
+          <h2 class="section-title">Section 14: Event-Driven Microservices with RabbitMQ</h2>
+        </div>
+        <div class="section-meta-pills">
+          <span class="meta-pill">Spring Cloud Stream</span>
+          <span class="meta-pill">message-ms: 9010</span>
+          <span class="meta-pill">Asynchronous Pub/Sub</span>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <div class="target-header">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Professor's Target & Learning Objective
+        </div>
+        <div class="target-content">
+          Implement asynchronous event-driven streaming with RabbitMQ and Spring Cloud Stream:
+          1. <code>TeamController</code> creates team and publishes event to topic <code>send-communication</code> via <code>StreamBridge</code>.
+          2. Microservice <code>message</code> receives event via pipeline <code>email|sms</code>, prints email log, prints sms log, and forwards team ID to topic <code>communication-sent</code>.
+          3. <code>TeamFunctions.updateCommunication</code> consumer picks up the message and updates database flag: <code>communicationDone = true</code>.
+        </div>
+      </div>
+
+      <!-- Test 1 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge post">POST</span>
+            <span class="test-card-title">Test 1: Create Team & Trigger Asynchronous Event Stream</span>
+          </div>
+          <span class="status-badge">Expected: 201 Created</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Post team creation request to port 8081 (or port 8888 through Gateway).</p>
+          <div class="code-container">
+            <div class="code-header"><span>cURL Request</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -X POST http://localhost:8081/api/teams/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "teamName": "Manchester City",
+    "coachName": "Pep Guardiola",
+    "tournamentCode": "PL",
+    "email": "rayenb@yahoo.com",
+    "mobileNumber": "12345678"
+  }'</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Expected HTTP Response</span></div>
+            <pre><code>HTTP/1.1 201 Created
+Content-Type: text/plain;charset=UTF-8
+
+Team created successfully</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test 2 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge cli">LOGS</span>
+            <span class="test-card-title">Test 2: Inspect Event Logs in message and team-microservice</span>
+          </div>
+          <span class="status-badge">Event Verification</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Inspect logs to verify that the message was received and processed across the RabbitMQ pipeline.</p>
+          <div class="code-container">
+            <div class="code-header"><span>In message-ms Console Logs</span></div>
+            <pre><code>Sending email with the details : TeamMessageDto[teamId=2, email=rayenb@yahoo.com, mobileNumber=12345678]
+Sending sms with the details : TeamMessageDto[teamId=2, email=rayenb@yahoo.com, mobileNumber=12345678]</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>In team-microservice Console Logs</span></div>
+            <pre><code>Updating Communication status for the team Id : 2</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test 3 -->
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-title-wrap">
+            <span class="http-badge get">GET</span>
+            <span class="test-card-title">Test 3: Confirm Database State Updated Asynchronously</span>
+          </div>
+          <span class="status-badge">Expected: 200 OK</span>
+        </div>
+        <div class="test-card-body">
+          <p class="test-instruction">Fetch team ID 2 to confirm that <code>communicationDone</code> transitioned to <code>true</code>.</p>
+          <div class="code-container">
+            <div class="code-header"><span>cURL Request</span><button class="copy-btn" onclick="copySnippet(this)">Copy</button></div>
+            <pre><code>curl -X GET http://localhost:8081/api/teams/2</code></pre>
+          </div>
+          <div class="code-container">
+            <div class="code-header"><span>Expected JSON Response</span></div>
+            <pre><code>{
+  "teamDto": {
+    "id": 2,
+    "teamName": "Manchester City",
+    "coachName": "Pep Guardiola",
+    "tournamentCode": "PL",
+    "tournamentName": "Premier League",
+    "email": "rayenb@yahoo.com",
+    "mobileNumber": "12345678",
+    "communicationDone": true
+  },
+  "tournamentDto": {
+    "id": 1,
+    "tournamentName": "Premier League",
+    "tournamentCode": "PL"
+  }
+}</code></pre>
+          </div>
+          <ul class="verify-list">
+            <li class="verify-item">Notice <code>"communicationDone": true</code> confirms full asynchronous round-trip completion!</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Copy Snippet functionality
+  function copySnippet(btn) {
+    const container = btn.closest('.code-container');
+    const code = container.querySelector('pre code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  // Live Search / Filter
+  const searchInput = document.getElementById('searchInput');
+  const sections = document.querySelectorAll('.section-block');
+  const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+
+  searchInput.addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    sections.forEach(sec => {
+      const text = sec.innerText.toLowerCase();
+      const keywords = sec.getAttribute('data-keywords') || '';
+      if (text.includes(q) || keywords.includes(q)) {
+        sec.style.display = 'block';
+      } else {
+        sec.style.display = 'none';
+      }
+    });
+  });
+
+  // Active Link Spy on Scroll
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(sec => {
+      const top = sec.offsetTop - 120;
+      if (window.pageYOffset >= top) {
+        current = sec.getAttribute('id');
+      }
+    });
+    navItems.forEach(item => {
+      item.classList.remove('active');
+      if (item.getAttribute('href') === '#' + current) {
+        item.classList.add('active');
+      }
+    });
+  });
+</script>
+</body>
+</html>

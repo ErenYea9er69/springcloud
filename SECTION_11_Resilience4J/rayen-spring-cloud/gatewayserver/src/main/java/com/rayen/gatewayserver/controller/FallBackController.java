@@ -14,3 +14,4 @@ public class FallBackController {
                 HttpStatus.SERVICE_UNAVAILABLE);
     }
 }
+

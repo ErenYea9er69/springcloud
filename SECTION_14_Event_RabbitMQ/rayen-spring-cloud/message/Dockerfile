@@ -9,3 +9,4 @@ COPY target/message-0.0.1-SNAPSHOT.jar message-0.0.1-SNAPSHOT.jar
 
 # execute the application
 ENTRYPOINT ["java", "-jar", "message-0.0.1-SNAPSHOT.jar"]
+

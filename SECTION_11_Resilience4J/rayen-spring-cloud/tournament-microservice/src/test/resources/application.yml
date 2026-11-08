@@ -16,3 +16,4 @@ spring:
 eureka:
   client:
     enabled: false
+

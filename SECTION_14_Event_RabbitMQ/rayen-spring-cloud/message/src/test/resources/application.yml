@@ -13,3 +13,4 @@ spring:
           emailsms-in-0:
             consumer:
               auto-bind-dlq: false
+

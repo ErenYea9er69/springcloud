@@ -20,3 +20,4 @@ spring:
           group: ${spring.application.name}
         emailsms-out-0:
           destination: communication-sent
+

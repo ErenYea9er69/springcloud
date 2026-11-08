@@ -13,3 +13,4 @@ class MessageApplicationTests {
     void contextLoads() {
     }
 }
+

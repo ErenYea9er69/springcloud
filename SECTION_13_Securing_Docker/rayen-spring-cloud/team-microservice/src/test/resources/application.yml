@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: team
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+    openfeign:
+      circuitbreaker:
+        enabled: false
+  config:
+    import: ""
+  datasource:
+    url: 'jdbc:h2:mem:teamdb'
+  jpa:
+    hibernate:
+      ddl-auto: update
+eureka:
+  client:
+    enabled: false

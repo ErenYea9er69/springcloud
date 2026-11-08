@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: "message"
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+  cloud:
+    stream:
+      default-binder: rabbit
+      rabbit:
+        bindings:
+          emailsms-in-0:
+            consumer:
+              auto-bind-dlq: false

@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: team
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+    openfeign:
+      circuitbreaker:
+        enabled: false
+    stream:
+      function:
+        autostart: false
+  config:
+    import: ""
+  datasource:
+    url: 'jdbc:h2:mem:teamdb'
+  jpa:
+    hibernate:
+      ddl-auto: update
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+eureka:
+  client:
+    enabled: false

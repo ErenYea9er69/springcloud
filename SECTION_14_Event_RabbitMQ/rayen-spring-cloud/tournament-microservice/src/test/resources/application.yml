@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: tournament
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+  config:
+    import: ""
+  datasource:
+    url: 'jdbc:h2:mem:tournamentdb'
+  jpa:
+    hibernate:
+      ddl-auto: update
+eureka:
+  client:
+    enabled: false

@@ -1,0 +1,25 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: tournament
+  datasource:
+    url: 'jdbc:h2:mem:tournamentdb'
+  h2:
+    console:
+      enabled: true
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+

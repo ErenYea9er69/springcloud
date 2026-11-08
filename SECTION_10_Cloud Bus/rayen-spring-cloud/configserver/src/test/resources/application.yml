@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    active: native
+  cloud:
+    bus:
+      enabled: false
+    config:
+      server:
+        native:
+          search-locations: "classpath:/config"

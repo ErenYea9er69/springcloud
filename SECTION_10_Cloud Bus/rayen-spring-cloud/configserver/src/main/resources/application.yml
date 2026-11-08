@@ -1,0 +1,20 @@
+server:
+  port: 9999
+spring:
+  application:
+    name: configserver
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: "classpath:/config"
+# Example file-system repository:
+# search-locations: "file:///${user.home}/Desktop/Spring Cloud/SECTION_05_CONFIGSERVER/rayen-spring-cloud/config-repo"
+# Example git repository:
+# git:
+#   uri: https://github.com/rayen/config-repo.git
+#   default-label: main
+#   clone-on-start: true
+

@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: team
+  cloud:
+    config:
+      enabled: false
+    bus:
+      enabled: false
+    discovery:
+      enabled: false
+  config:
+    import: ""
+  datasource:
+    url: 'jdbc:h2:mem:teamdb'
+  jpa:
+    hibernate:
+      ddl-auto: update
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+eureka:
+  client:
+    enabled: false

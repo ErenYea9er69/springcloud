@@ -1,6 +1,5 @@
-build:
+﻿build:
   version: "2.0"
 author:
-  name: "rayen [team PROD]"
-  email: "rayenb_team_PROD@yahoo.com"
-
+  name: "rayen [team update]"
+  email: "rayenb_team_update@yahoo.com"

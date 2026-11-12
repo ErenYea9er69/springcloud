@@ -1,0 +1,872 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring Cloud Course Guide - Rayen workspace</title>
+<style>
+:root{color-scheme:light;--ink:#17263b;--muted:#53647a;--paper:#f4f7fb;--card:#fff;--line:#d8e1ec;--blue:#1769aa;--soft:#eaf4fc;--code:#122033}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.58 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:42px max(22px,calc((100% - 1040px)/2));background:#122b49;color:#fff}header p{max-width:780px;color:#d8e7f8}
+h1{margin:0;font-size:clamp(2rem,5vw,3.1rem);line-height:1.12}main{max-width:1080px;margin:26px auto 64px;padding:0 20px}
+h2{font-size:1.4rem;margin:0 0 10px}h3{margin:18px 0 5px;font-size:1.04rem}p{margin:8px 0}
+.card,.section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:19px 22px;margin:15px 0;box-shadow:0 2px 8px #10243a0a}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:9px}.port{background:var(--soft);border-radius:8px;padding:9px 11px}
+.port strong,.tag{color:var(--blue)}.tag{display:inline-block;background:var(--soft);border-radius:5px;padding:2px 8px;font-size:.82rem;font-weight:650}
+nav{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0 23px}nav a{color:#14598f;background:white;border:1px solid var(--line);border-radius:999px;padding:5px 10px;text-decoration:none;font-size:.88rem}
+nav a:hover,nav a:focus-visible{outline:3px solid #8bc5f0;outline-offset:2px}.files{color:var(--muted)}
+code,pre{font-family:Consolas,"Cascadia Code",monospace}code{font-size:.92em}pre{overflow-x:auto;margin:8px 0;padding:12px 14px;border-radius:8px;background:var(--code);color:#f0f5fb;font-size:13px;line-height:1.55}
+.result,.note{padding:8px 12px;border-left:4px solid #2c8a63;background:#eff9f4}.note{border-color:#c18a18;background:#fff8e9}
+a{color:#14598f}footer{color:var(--muted);padding:14px 0;font-size:.9rem}
+@media print{body{background:white}header{background:white;color:var(--ink);padding:15px 0}header p{color:var(--ink)}main{margin:0 auto}.card,.section{box-shadow:none;break-inside:avoid}nav{display:none}pre{white-space:pre-wrap}}
+
+.run-guide{padding:12px 15px;background:#eaf4fc;border:1px solid #c7dfef;border-radius:9px;margin:16px 0}.block-label{margin:12px 0 3px;font-size:.84rem;font-weight:700;color:#174f78}.block-label span{display:inline-block;padding:3px 9px;border-radius:5px;background:#eaf4fc}.section .result{margin-top:8px}
+
+.runbook{border-left:5px solid #1769aa}.runbook h4{margin:16px 0 4px;color:#174f78}.runbook ul{margin-top:4px}.runbook pre{white-space:pre-wrap}
+
+.why{margin:2px 0 12px 12px;color:#53647a;font-size:.93rem}.why strong{color:#174f78}
+
+.runbook-target{padding:10px 13px;background:#eff9f4;border-left:4px solid #2c8a63;border-radius:5px;margin:10px 0}.runbook-target strong{color:#1d654a}
+
+/* Navigation Switcher */
+.view-tabs { display: flex; gap: 12px; margin: 24px 0 28px; padding: 6px; background: #e3ebf4; border-radius: 12px; }
+.view-tab-btn { flex: 1; text-align: center; padding: 13px 18px; border-radius: 8px; font-weight: 700; font-size: 0.98rem; text-decoration: none; color: #174f78; background: transparent; transition: all 0.2s ease; border: 1px solid transparent; }
+.view-tab-btn:hover { background: #d7e4f0; }
+.view-tab-btn.active { background: #fff; color: #122b49; box-shadow: 0 2px 8px rgba(18, 43, 73, 0.12); border-color: #c7dfef; }
+.pdf-tag { display: inline-flex; align-items: center; gap: 4px; background: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-radius: 6px; padding: 2px 9px; font-size: 0.8rem; font-weight: 700; margin-left: 6px; font-family: Consolas, monospace; }
+
+/* Deep Dive Phase Styling */
+.deepdive-hero { background: linear-gradient(135deg, #10243e 0%, #1a3c66 100%); color: #fff; border: 1px solid #0d1e33; padding: 32px 34px; margin: 35px 0 25px; }
+.deepdive-hero h2 { font-size: 1.95rem; color: #fff; margin: 0 0 10px; }
+.deepdive-hero p { color: #d8e7f8; font-size: 1.05rem; line-height: 1.62; max-width: 880px; margin: 0; }
+
+.phase-card { border-top: 5px solid #1769aa; margin: 32px 0; padding: 26px 30px; }
+.phase-card.phase-1 { border-top-color: #1769aa; }
+.phase-card.phase-2 { border-top-color: #0d9488; }
+.phase-card.phase-3 { border-top-color: #6366f1; }
+
+.phase-header { margin-bottom: 20px; }
+.phase-tag { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+.tag-blue { background: #eaf4fc; color: #1769aa; border: 1px solid #c7dfef; }
+.tag-teal { background: #ecfdf5; color: #0f766e; border: 1px solid #a7f3d0; }
+.tag-purple { background: #f5f3ff; color: #5b21b6; border: 1px solid #ddd6fe; }
+
+.sec-breakdown { background: #fbfcfe; border: 1px solid #e1e9f2; border-radius: 10px; padding: 20px 22px; margin: 20px 0; }
+.sec-breakdown h4 { margin: 0 0 10px; font-size: 1.15rem; color: #17263b; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.sec-breakdown .tech-pill { font-size: 0.78rem; font-weight: 600; padding: 2px 8px; border-radius: 5px; background: #e8f0f8; color: #174f78; font-family: Consolas, monospace; }
+.sec-breakdown p { margin: 8px 0; font-size: 0.96rem; line-height: 1.58; color: #2c3e50; }
+.sec-breakdown ul { margin: 8px 0 8px 20px; padding: 0; }
+.sec-breakdown li { margin: 4px 0; font-size: 0.95rem; }
+
+/* Port Specification Table */
+.spec-table-wrap { overflow-x: auto; margin: 20px 0; border: 1px solid #d8e1ec; border-radius: 10px; background: #fff; }
+.spec-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; text-align: left; }
+.spec-table th { background: #edf4fa; color: #174f78; font-weight: 700; padding: 12px 14px; border-bottom: 2px solid #d8e1ec; white-space: nowrap; }
+.spec-table td { padding: 11px 14px; border-bottom: 1px solid #e6edf5; vertical-align: top; }
+.spec-table tr:last-child td { border-bottom: none; }
+.spec-table tr:hover td { background: #f7fafc; }
+.spec-table .port-badge { font-family: Consolas, monospace; font-weight: 700; color: #0f4c81; background: #eaf3fb; padding: 2px 8px; border-radius: 4px; display: inline-block; border: 1px solid #c9e0f2; }
+
+/* Visual ASCII / Text Diagrams */
+.diagram-box { background: #0f1c2e; color: #e2eaf3; border-radius: 10px; padding: 18px 20px; margin: 18px 0; font-family: Consolas, "Cascadia Code", monospace; font-size: 13px; line-height: 1.48; overflow-x: auto; box-shadow: inset 0 2px 6px rgba(0,0,0,0.3); border: 1px solid #23395d; white-space: pre; }
+.diagram-box .dim { color: #6e84a3; }
+.diagram-box .hl-cyan { color: #38bdf8; font-weight: bold; }
+.diagram-box .hl-green { color: #4ade80; font-weight: bold; }
+.diagram-box .hl-yellow { color: #facc15; font-weight: bold; }
+.diagram-box .hl-purple { color: #c084fc; font-weight: bold; }
+</style></head><body>
+<header><h1>Spring Cloud course guide</h1><p>A short guide to each PDF's goal, the files that implement it in your workspace, the commands and tests, and why each port is used. Commands are for Windows PowerShell and follow your Tournament and Team projects.</p></header>
+<main>
+<nav class="view-tabs" aria-label="Main Document Navigation">
+  <a href="#part1-runbooks" class="view-tab-btn active">Part 1 &bull; Interactive Runbooks & Commands</a>
+  <a href="#part2-deepdive" class="view-tab-btn">Part 2 &bull; Architectural Deep-Dive & Port Analysis</a>
+</nav>
+<div id="part1-runbooks">
+<section class="card"><h2>Plan and numbering</h2><p>Each section uses the same order: <strong>Target</strong>  ->  <strong>Main files</strong>  ->  <strong>Run/test</strong>  ->  <strong>Ports and expected result</strong>. The PDFs in the folder are 01-11, 13 and 14; there is no PDF 12. Your pasted notes contain 13 command groups, so the guide follows those groups.</p><p class="note">The PDFs use Department and Teacher as the professor's sample services. Your projects use Tournament and Team. The rest of this guide explains your code and uses your service names.</p><h3>Course Sections &amp; Corresponding PDF Files</h3><div class="spec-table-wrap"><table class="spec-table"><thead><tr><th>Section #</th><th>Workspace Folder</th><th>Required Course PDF File</th><th>Primary Tech Stack</th></tr></thead><tbody><tr><td><strong>Section 1</strong></td><td><code>SECTION_02_CREA_MS</code></td><td><span class="pdf-tag">📄 01+Création+des+microservices.pdf</span></td><td>Spring Boot REST, H2 Database</td></tr><tr><td><strong>Section 2</strong></td><td><code>SECTION_03_COMM_MS</code></td><td><span class="pdf-tag">📄 02+Communication+entre+les+microservices+avec+Spring+Cloud.pdf</span></td><td>WebClient &amp; OpenFeign</td></tr><tr><td><strong>Section 3</strong></td><td><code>SECTION_04_EUREKA</code></td><td><span class="pdf-tag">📄 03+Spring+Cloud+Netflix+Eureka.pdf</span></td><td>Netflix Eureka Dynamic Discovery</td></tr><tr><td><strong>Section 4</strong></td><td><code>SECTION_05_GATEWAY</code></td><td><span class="pdf-tag">📄 04+Spring+Cloud+Api+Gateway.pdf</span></td><td>Spring Cloud Gateway (Reactive)</td></tr><tr><td><strong>Section 5</strong></td><td><code>SECTION_06_CONFIGSERVER</code></td><td><span class="pdf-tag">📄 05+Spring+Cloud+Config+Server.pdf</span></td><td>Spring Cloud Config Server</td></tr><tr><td><strong>Section 6</strong></td><td><code>SECTION_07_Intro_to_Docker</code></td><td><span class="pdf-tag">📄 06+Introduction+à+Docker_v2.pdf</span></td><td>Docker Standalone Container</td></tr><tr><td><strong>Section 7</strong></td><td><code>SECTION_08_Mysql_As_Docker</code></td><td><span class="pdf-tag">📄 07+Utiliser+la+BD+Mysql+en+tant+que+Docker.pdf</span></td><td>MySQL 8.0 in Docker &amp; Bridge Network</td></tr><tr><td><strong>Section 8</strong></td><td><code>SECTION_09_DOCKERIZE_VOS_MS</code></td><td><span class="pdf-tag">📄 08+Dockerize+vos+Micorservices_V2.pdf</span></td><td>Full Stack Docker Compose</td></tr><tr><td><strong>Section 9</strong></td><td><code>SECTION_10_Cloud Bus</code></td><td><span class="pdf-tag">📄 09+Spring+Cloud+Bus+et+Rabbit+MQ.pdf</span></td><td>Spring Cloud Bus &amp; RabbitMQ</td></tr><tr><td><strong>Section 10</strong></td><td><code>SECTION_11_Resilience4J</code></td><td><span class="pdf-tag">📄 10+Résilience+des+microservices+avec+Resilience4J.pdf</span></td><td>Resilience4J Circuit Breaker</td></tr><tr><td><strong>Section 11</strong></td><td><code>SECTION_12_Securing_gateway</code></td><td><span class="pdf-tag">📄 11++Securing+microservices.pdf</span></td><td>Keycloak OAuth2 / OIDC &amp; Gateway RBAC</td></tr><tr><td><strong>Section 12</strong></td><td><code>SECTION_13_Securing_Docker</code></td><td><span class="pdf-tag">📄 13++Securing+microservices+using+docker.pdf</span></td><td>PostgreSQL-backed Keycloak Persistence</td></tr><tr><td><strong>Section 13</strong></td><td><code>SECTION_14_Event_RabbitMQ</code></td><td><span class="pdf-tag">📄 14+event+driven+ms+using+RabbitMQ.pdf</span></td><td>Spring Cloud Stream &amp; RabbitMQ Events</td></tr></tbody></table></div><h3>Before running Docker sections</h3><p>Start Docker Desktop and wait for its engine once per session:</p><pre>Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+do {
+  Start-Sleep -Seconds 5
+  docker info --format '{{.ServerVersion}}' 2>$null | Out-Null
+  $engineReady = ($LASTEXITCODE -eq 0)
+} until ($engineReady)</pre></section>
+<section class="card"><h2>Professor example names and your project names</h2><p><strong>Professor calls it Department</strong> -> <strong>Your code calls it Tournament</strong></p><p><strong>Professor calls it Teacher</strong> -> <strong>Your code calls it Team</strong></p><p>So a PDF test for a department endpoint is replaced here with your Tournament endpoint; a teacher endpoint is replaced with your Team endpoint.</p></section>
+<section class="card"><h2>Port quick guide</h2><div class="grid">
+<div class="port"><strong>8080</strong> Tournament HTTP port when run locally. In Docker this is usually the container-side port; Compose can publish it under another host port.</div>
+<div class="port"><strong>8081</strong> Team HTTP port. It differs from Tournament 8080 so both apps can run on your computer at the same time.</div>
+<div class="port"><strong>8082 / 8084</strong> Second Tournament instance. Local Java run uses 8082; Docker Compose publishes container port 8080 as host port 8084.</div>
+<div class="port"><strong>8083</strong> Host-side port for the standalone image test. Mapping 8083:8080 avoids a conflict with a local app already using 8080.</div>
+<div class="port"><strong>8761</strong> Eureka registry address and dashboard. Services register here so other services can discover their names and instances.</div><div class="port"><strong>8888</strong> Gateway HTTP port. Clients send one request here; Gateway forwards it to Team or Tournament.</div>
+<div class="port"><strong>9999</strong> Config Server HTTP port. Apps request their profile settings from this port when they start.</div><div class="port"><strong>3306</strong> MySQL database listener. Use it from Windows only when Docker publishes 3306 to the host; containers connect to MySQL by service name.</div>
+<div class="port"><strong>5672</strong> RabbitMQ AMQP port used by applications to publish/consume messages; <strong>15672</strong> is the human-facing management page.</div>
+<div class="port"><strong>8090</strong> Keycloak URL from your browser/Postman. Docker forwards host 8090 to Keycloak container port 8080.</div>
+<div class="port"><strong>9010</strong> Message has this configured server port, but its final project has no web starter or REST controller. Test it by sending an event through Team and RabbitMQ.</div>
+</div></section>
+<p class="run-guide"><strong>How to use each section:</strong> follow the numbered blocks from top to bottom. Blocks marked <strong>PowerShell</strong> are terminal commands; leave each long-running app open in its own terminal. Blocks marked <strong>Browser</strong> or <strong>Postman</strong> are checks to run after the listed services have started. Do not paste a URL or a GET/POST line into PowerShell.</p>
+<nav aria-label="Exact test runbooks"><a href="#runbook1">Runbook 1</a><a href="#runbook2">Runbook 2</a><a href="#runbook3">Runbook 3</a><a href="#runbook4">Runbook 4</a><a href="#runbook5">Runbook 5</a><a href="#runbook6">Runbook 6</a><a href="#runbook7">Runbook 7</a><a href="#runbook8">Runbook 8</a><a href="#runbook9">Runbook 9</a><a href="#runbook10">Runbook 10</a><a href="#runbook11">Runbook 11</a><a href="#runbook12">Runbook 12</a><a href="#runbook13">Runbook 13</a></nav>
+<section class="section runbook" id="runbook1"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 01+Création+des+microservices.pdf</span><h2>Section 1 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Create two independent REST services: Tournament serves tournament data, and Team serves team data.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command. Run URLs in a browser or Postman, not in PowerShell.</p><h4>Step 1 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_02_CREA_MS\rayen-spring-cloud\tournament-microservice&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Moves PowerShell into the Tournament project and starts its API.</p><h4>Step 2 - Browser or Postman</h4><ul><li><a href="http://localhost:8080/api/tournaments/PL">http://localhost:8080/api/tournaments/PL</a></li><li><a href="http://localhost:8080/api/tournaments/CL">http://localhost:8080/api/tournaments/CL</a></li></ul><p class="why"><strong>Why:</strong> Open these Tournament endpoints in a browser to confirm the seeded PL and CL records are returned.</p><h4>Step 3 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_02_CREA_MS\rayen-spring-cloud\team-microservice&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Moves to the Team project and starts its API on its own port.</p><h4>Step 4 - Browser or Postman</h4><ul><li><a href="http://localhost:8081/api/teams/1">http://localhost:8081/api/teams/1</a></li></ul><p class="why"><strong>Why:</strong> Checks the seeded Team record through the Team API.</p></section><section class="section runbook" id="runbook2"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 02+Communication+entre+les+microservices+avec+Spring+Cloud.pdf</span><h2>Section 2 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Make Team call Tournament and return both the team and its related tournament in one response.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command. Run URLs in a browser or Postman, not in PowerShell.</p><h4>Step 1 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_03_COMM_MS\rayen-spring-cloud\tournament-microservice&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Start Tournament first so Team has an API available to call.</p><h4>Step 2 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_03_COMM_MS\rayen-spring-cloud\team-microservice&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Start Team in a second terminal; it calls Tournament while building its response.</p><h4>Step 3 - Browser or Postman</h4><ul><li><a href="http://localhost:8081/api/teams/1">http://localhost:8081/api/teams/1</a></li></ul><p class="why"><strong>Why:</strong> Checks the combined Team and Tournament response.</p><h4>Step 4 - Browser or Postman</h4><ul><li><a href="http://localhost:8080/api/tournaments/PL">http://localhost:8080/api/tournaments/PL</a></li></ul><p class="why"><strong>Why:</strong> Checks Tournament directly if you need to isolate its API.</p></section><section class="section runbook" id="runbook3"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 03+Spring+Cloud+Netflix+Eureka.pdf</span><h2>Section 3 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Register services with Eureka so Team can discover Tournament by service name, and observe multiple Tournament instances.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command. Run URLs in a browser or Postman, not in PowerShell.</p><h4>Step 1 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_04_EUREKA\rayen-spring-cloud&quot;
+mvn -pl eurekaserver spring-boot:run</pre><p class="why"><strong>Why:</strong> Starts Eureka, the registry that tracks service instances.</p><h4>Step 2 - Browser or Postman</h4><ul><li><a href="http://localhost:8761/">http://localhost:8761/</a></li></ul><p class="why"><strong>Why:</strong> Open the dashboard to confirm Eureka is reachable.</p><h4>Step 3 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_04_EUREKA\rayen-spring-cloud\tournament-microservice&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Starts the first Tournament instance, which registers with Eureka.</p><h4>Step 4 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_04_EUREKA\rayen-spring-cloud\tournament-microservice&quot;
+mvn package -DskipTests
+java -jar .\target\tournament-microservice-0.0.1-SNAPSHOT.jar --server.port=8082</pre><p class="why"><strong>Why:</strong> Builds the second Tournament instance and starts it on port 8082 so it does not conflict with 8080.</p><h4>Step 5 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_04_EUREKA\rayen-spring-cloud\team-microservice&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Starts Team so it can discover Tournament through Eureka.</p><h4>Step 6 - Browser or Postman</h4><ul><li><a href="http://localhost:8081/api/teams/1">http://localhost:8081/api/teams/1</a></li></ul><p class="why"><strong>Why:</strong> Checks that Team can retrieve its Tournament data through discovery.</p></section><section class="section runbook" id="runbook4"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 04+Spring+Cloud+Api+Gateway.pdf</span><h2>Section 4 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Route client requests through Spring Cloud Gateway instead of calling each microservice directly.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command. Run URLs in a browser or Postman, not in PowerShell.</p><h4>Step 1 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_05_GATEWAY\rayen-spring-cloud&quot;
+mvn -pl eurekaserver spring-boot:run</pre><p class="why"><strong>Why:</strong> Starts Eureka so the services and Gateway can register and discover one another.</p><h4>Step 2 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_05_GATEWAY\rayen-spring-cloud\tournament-microservice&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Starts Tournament as a Gateway route target.</p><h4>Step 3 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_05_GATEWAY\rayen-spring-cloud\team-microservice&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Starts Team as another Gateway route target.</p><h4>Step 4 - Browser or Postman</h4><ul><li><a href="http://localhost:8761/">http://localhost:8761/</a></li></ul><p class="why"><strong>Why:</strong> Confirms Eureka is available before checking the routes.</p><h4>Step 5 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_05_GATEWAY\rayen-spring-cloud\gatewayserver&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Starts Gateway, the client-facing entry point on port 8888.</p><h4>Step 6 - Browser or Postman</h4><ul><li><a href="http://localhost:8888/api/tournaments/PL">http://localhost:8888/api/tournaments/PL</a></li></ul><p class="why"><strong>Why:</strong> Checks the Tournament route through Gateway.</p><h4>Step 7 - Browser or Postman</h4><ul><li><a href="http://localhost:8888/api/teams/1">http://localhost:8888/api/teams/1</a></li></ul><p class="why"><strong>Why:</strong> Checks the Team route through Gateway.</p></section><section class="section runbook" id="runbook5"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 05+Spring+Cloud+Config+Server.pdf</span><h2>Section 5 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Serve profile-specific settings from Config Server and verify that Tournament loads its configured values.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command. Run URLs in a browser or Postman, not in PowerShell.</p><h4>Step 1 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_06_CONFIGSERVER\rayen-spring-cloud\configserver&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Starts Config Server, which serves profile settings to the apps.</p><h4>Step 2 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_06_CONFIGSERVER\rayen-spring-cloud\eurekaserver&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Starts Eureka for service registration in this section.</p><h4>Step 3 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_06_CONFIGSERVER\rayen-spring-cloud\tournament-microservice&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Starts Tournament so it can load its production configuration.</p><h4>Step 4 - Browser or Postman</h4><ul><li><a href="http://localhost:9999/tournament/prod">http://localhost:9999/tournament/prod</a></li></ul><p class="why"><strong>Why:</strong> Inspect the configuration Config Server serves for Tournament and Team.</p><h4>Step 5 - Browser or Postman</h4><ul><li><a href="http://localhost:9999/team/prod">http://localhost:9999/team/prod</a></li></ul><p class="why"><strong>Why:</strong> Checks the loaded version and author values from the Tournament API.</p><h4>Step 6 - Browser or Postman</h4><ul><li><a href="http://localhost:8080/api/tournaments/version">http://localhost:8080/api/tournaments/version</a></li><li><a href="http://localhost:8080/api/tournaments/author">http://localhost:8080/api/tournaments/author</a></li></ul><p class="why"><strong>Why:</strong> This step performs the check described above.</p></section><section class="section runbook" id="runbook6"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 06+Introduction+à+Docker_v2.pdf</span><h2>Section 6 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Package the Tournament application as a Docker image and test it as a standalone container.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command. Run URLs in a browser or Postman, not in PowerShell.</p><h4>Step 1 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_07_Intro_to_Docker\rayen-spring-cloud\tournament-microservice&quot;
+mvn clean package -DskipTests</pre><p class="why"><strong>Why:</strong> Builds the executable Tournament JAR needed by the Docker image.</p><h4>Step 2 - PowerShell</h4><pre>Start-Process -FilePath &quot;C:\Program Files\Docker\Docker\Docker Desktop.exe&quot;</pre><p class="why"><strong>Why:</strong> Opens Docker Desktop and waits until its engine responds to Docker commands.</p><h4>Step 3 - PowerShell</h4><pre>Write-Host &quot;Waiting for Docker Desktop...&quot;
+do {
+    Start-Sleep -Seconds 5
+    docker info --format &#x27;{{.ServerVersion}}&#x27; 2&gt;$null | Out-Null
+    $engineReady = ($LASTEXITCODE -eq 0)
+} until ($engineReady)</pre><p class="why"><strong>Why:</strong> Builds the image from the service Dockerfile and JAR.</p><h4>Step 4 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_07_Intro_to_Docker\rayen-spring-cloud\tournament-microservice&quot;
+docker build -t rayen/tournament:v1 .</pre><p class="why"><strong>Why:</strong> Confirms the new image and tag exist locally.</p><h4>Step 5 - PowerShell</h4><pre>docker images rayen/tournament</pre><p class="why"><strong>Why:</strong> Runs the image and maps your computer&#x27;s port 8083 to container port 8080; the environment flags disable external Config/Eureka dependencies for this standalone test.</p><h4>Step 6 - PowerShell</h4><pre>docker run -d --name tournament-container -p 8083:8080 -e SPRING_CLOUD_CONFIG_ENABLED=false -e SPRING_CLOUD_DISCOVERY_ENABLED=false -e EUREKA_CLIENT_ENABLED=false rayen/tournament:v1</pre><p class="why"><strong>Why:</strong> Confirms the container is running.</p><h4>Step 7 - PowerShell</h4><pre>docker ps</pre><p class="why"><strong>Why:</strong> Checks both Tournament endpoints through the mapped host port.</p><h4>Step 8 - Browser or Postman</h4><ul><li><a href="http://localhost:8083/api/tournaments/PL">http://localhost:8083/api/tournaments/PL</a></li><li><a href="http://localhost:8083/api/tournaments/CL">http://localhost:8083/api/tournaments/CL</a></li></ul><p class="why"><strong>Why:</strong> Stops and removes the test container after the checks.</p><h4>Step 9 - PowerShell</h4><pre>docker stop tournament-container
+docker rm tournament-container</pre><p class="why"><strong>Why:</strong> This step performs the check described above.</p></section><section class="section runbook" id="runbook7"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 07+Utiliser+la+BD+Mysql+en+tant+que+Docker.pdf</span><h2>Section 7 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Run MySQL in Docker, connect Tournament to it, and verify that the API data is stored in the database.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command. Run URLs in a browser or Postman, not in PowerShell.</p><h4>Step 1 - PowerShell</h4><pre>Start-Process -FilePath &quot;C:\Program Files\Docker\Docker\Docker Desktop.exe&quot;</pre><p class="why"><strong>Why:</strong> Starts Docker and waits for its engine before continuing.</p><h4>Step 2 - PowerShell</h4><pre>Write-Host &quot;Waiting for Docker Desktop...&quot;
+do {
+    Start-Sleep -Seconds 5
+    docker info --format &#x27;{{.ServerVersion}}&#x27; 2&gt;$null | Out-Null
+    $engineReady = ($LASTEXITCODE -eq 0)
+} until ($engineReady)</pre><p class="why"><strong>Why:</strong> Stops any prior Compose stack so it cannot conflict with the manual database test.</p><h4>Step 3 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_08_Mysql_As_Docker\rayen-spring-cloud&quot;
+docker compose down --remove-orphans</pre><p class="why"><strong>Why:</strong> Removes old containers with these names if they remain from a previous attempt.</p><h4>Step 4 - PowerShell</h4><pre>docker rm -f mysqldb tournaments-ms 2&gt;$null</pre><p class="why"><strong>Why:</strong> Builds the service JAR before starting the manual test.</p><h4>Step 5 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_08_Mysql_As_Docker\rayen-spring-cloud\tournament-microservice&quot;
+mvn clean package -DskipTests</pre><p class="why"><strong>Why:</strong> Creates the Docker network only when it does not already exist.</p><h4>Step 6 - PowerShell</h4><pre>$networks = docker network ls --format &#x27;{{.Name}}&#x27;
+if ($networks -notcontains &quot;my-net&quot;) {
+    docker network create my-net
+}</pre><p class="why"><strong>Why:</strong> Downloads MySQL and starts it on the network, publishing port 3306 to Windows.</p><h4>Step 7 - PowerShell</h4><pre>docker pull mysql:latest
+docker run -d --network my-net -p 3306:3306 --name mysqldb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=test mysql:latest</pre><p class="why"><strong>Why:</strong> Waits until MySQL reports that it is ready to accept connections.</p><h4>Step 8 - PowerShell</h4><pre>$mysqlReady = $false
+for ($i = 0; $i -lt 60; $i++) {
+    Start-Sleep -Seconds 5
+    docker exec mysqldb mysqladmin ping -h localhost --silent 2&gt;$null
+    if ($LASTEXITCODE -eq 0) {
+        $mysqlReady = $true
+        break
+    }
+}
+if (-not $mysqlReady) {
+    docker logs mysqldb
+    throw &quot;MySQL did not become ready.&quot;
+}</pre><p class="why"><strong>Why:</strong> Confirms MySQL is running; use the displayed values to connect a database client if desired.</p><h4>Step 9 - PowerShell</h4><pre>docker ps</pre><p class="why"><strong>Why:</strong> Confirms the MySQL container is running on port 3306.</p><p class="note"><strong>Database connection parameters (optional GUI client):</strong><br>Host: <code>localhost</code> | Port: <code>3306</code> | User: <code>root</code> | Password: <code>root</code> | Database: <code>test</code></p><h4>Step 10 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_08_Mysql_As_Docker\rayen-spring-cloud\tournament-microservice&quot;
+mvn spring-boot:run</pre><p class="why"><strong>Why:</strong> Starts the Tournament app connected to the Docker MySQL database.</p><h4>Step 11 - Browser or Postman</h4><ul><li><a href="http://localhost:8080/api/tournaments/PL">http://localhost:8080/api/tournaments/PL</a></li><li><a href="http://localhost:8080/api/tournaments/CL">http://localhost:8080/api/tournaments/CL</a></li></ul><p class="why"><strong>Why:</strong> Checks the Tournament API endpoints against MySQL.</p><p class="note"><strong>Important:</strong> Stop the local Tournament app (press <code>Ctrl+C</code> in the Step 10 terminal) before starting container tests on port 8080.</p><h4>Step 12 - PowerShell</h4><pre>docker exec mysqldb mysql -uroot -proot -D test -e &quot;SHOW TABLES; SELECT * FROM tournament;&quot;</pre><p class="why"><strong>Why:</strong> Directly inspects the MySQL container to verify that Hibernate created the tables and seeded Tournament records.</p><h4>Step 13 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_08_Mysql_As_Docker\rayen-spring-cloud\tournament-microservice&quot;
+docker build -t rayen/tournament-mysql:v1 .</pre><p class="why"><strong>Why:</strong> Waits for the app to initialize and displays its status and recent logs if diagnosing startup.</p><h4>Step 14 - PowerShell</h4><pre>docker run -d --network my-net -p 8080:8080 --name tournaments-ms -e &quot;SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/test?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true&quot; -e SPRING_DATASOURCE_USERNAME=root -e SPRING_DATASOURCE_PASSWORD=root rayen/tournament-mysql:v1</pre><p class="why"><strong>Why:</strong> Checks the containerized Tournament API.</p><h4>Step 15 - PowerShell</h4><pre>Start-Sleep -Seconds 15
+docker ps
+docker logs --tail 40 tournaments-ms</pre><p class="why"><strong>Why:</strong> Removes the test app and database containers before using Compose.</p><h4>Step 16 - Browser or Postman</h4><ul><li><a href="http://localhost:8080/api/tournaments/PL">http://localhost:8080/api/tournaments/PL</a></li></ul><p class="why"><strong>Why:</strong> Starts the section&#x27;s own Compose setup, rebuilding images first.</p><h4>Step 17 - PowerShell</h4><pre># 1. Stop any local Java process still holding port 8080:
+Get-Process -Name java -ErrorAction SilentlyContinue | Where-Object { (Get-NetTCPConnection -OwningProcess $_.Id -LocalPort 8080 -ErrorAction SilentlyContinue) } | Stop-Process -Force
+
+# 2. Remove standalone containers so Compose can bind names and ports:
+docker rm -f mysqldb tournaments-ms</pre><p class="why"><strong>Why:</strong> Frees port 8080 and removes standalone containers (mysqldb and tournaments-ms) so Docker Compose starts cleanly without conflicts.</p><h4>Step 18 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_08_Mysql_As_Docker\rayen-spring-cloud&quot;
+docker compose up --build -d</pre><p class="why"><strong>Why:</strong> Checks the Tournament API when started through Compose.</p><h4>Step 19 - PowerShell</h4><pre>Start-Sleep -Seconds 15
+docker compose ps
+docker compose logs --tail 40 tournaments-ms</pre><p class="why"><strong>Why:</strong> Stops the Compose stack after testing.</p><h4>Step 20 - Browser or Postman</h4><ul><li><a href="http://localhost:8080/api/tournaments/PL">http://localhost:8080/api/tournaments/PL</a></li></ul><p class="why"><strong>Why:</strong> This step performs the check described above.</p><h4>Step 21 - PowerShell</h4><pre>docker compose down --remove-orphans</pre><p class="why"><strong>Why:</strong> This step performs the check described above.</p></section><section class="section runbook" id="runbook8"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 08+Dockerize+vos+Micorservices_V2.pdf</span><h2>Section 8 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Run Eureka, Config Server, Tournament (2 instances), Team, and Gateway together as Docker Compose services.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command. Run URLs in a browser or Postman, not in PowerShell.</p><h4>Step 1 - PowerShell (Docker Engine Check)</h4><pre>Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+do {
+    Start-Sleep -Seconds 5
+    docker info --format '{{.ServerVersion}}' 2>$null | Out-Null
+    $engineReady = ($LASTEXITCODE -eq 0)
+} until ($engineReady)</pre><p class="why"><strong>Why:</strong> Ensures Docker Desktop is running and responsive before running container commands.</p><h4>Step 2 - PowerShell (Clean Old Containers &amp; Build All JARs)</h4><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_09_DOCKERIZE_VOS_MS\rayen-spring-cloud"
+docker compose down --remove-orphans
+mvn clean package -DskipTests</pre><p class="why"><strong>Why:</strong> Shuts down any existing stack, purges orphan containers/networks from previous sections, and compiles fresh executable JARs for all 5 microservices.</p><h4>Step 3 - PowerShell (Start Full Stack with Automatic Health Dependency Ordering)</h4><pre>docker compose up --build -d
+Start-Sleep -Seconds 45
+docker compose ps</pre><p class="why"><strong>Why:</strong> Builds container images directly from the fresh JARs and starts services in dependency order: Eureka &amp; Config Server become healthy &rarr; Tournament instances become healthy &rarr; Team becomes healthy &rarr; Gateway starts last. All 6 containers will show healthy / running.</p><h4>Step 4 - Browser or Postman (Eureka Dashboard)</h4><ul><li><a href="http://localhost:8761/">http://localhost:8761/</a></li></ul><p class="why"><strong>Why:</strong> Verifies that TOURNAMENT-MICROSERVICE (2 instances) and TEAM-MICROSERVICE are registered.</p><h4>Step 5 - Browser or Postman (Centralized Config)</h4><ul><li><a href="http://localhost:9999/tournament/prod">http://localhost:9999/tournament/prod</a></li></ul><p class="why"><strong>Why:</strong> Confirms Config Server is serving configuration to containers.</p><h4>Step 6 - Browser or Postman (Direct Microservice Checks)</h4><ul><li><a href="http://localhost:8080/api/tournaments/PL">http://localhost:8080/api/tournaments/PL</a></li><li><a href="http://localhost:8084/api/tournaments/PL">http://localhost:8084/api/tournaments/PL</a></li></ul><p class="why"><strong>Why:</strong> Confirms Tournament instance 1 (port 8080) and Tournament instance 2 (port 8084) are responding directly.</p><h4>Step 7 - Browser or Postman (Gateway Routing)</h4><ul><li><a href="http://localhost:8888/api/tournaments/PL">http://localhost:8888/api/tournaments/PL</a></li><li><a href="http://localhost:8888/api/teams/1">http://localhost:8888/api/teams/1</a></li></ul><p class="why"><strong>Why:</strong> Tests Gateway routing on port 8888 to Tournament and Team (with integrated Feign call).</p><h4>Step 8 - PowerShell (Failover Test: Stop Instance 1)</h4><pre>docker compose stop tournaments-ms</pre><p class="why"><strong>Why:</strong> Simulates an instance failure by stopping the first Tournament container.</p><h4>Step 9 - Browser or Postman (Verify Redundancy via Gateway)</h4><ul><li><a href="http://localhost:8888/api/tournaments/PL">http://localhost:8888/api/tournaments/PL</a></li><li><a href="http://localhost:8888/api/teams/1">http://localhost:8888/api/teams/1</a></li></ul><p class="why"><strong>Why:</strong> Verifies that Gateway seamlessly routes traffic to Tournament instance 2 (port 8084), ensuring zero downtime.</p><h4>Step 10 - PowerShell (Restart Instance 1 &amp; Clean Teardown)</h4><pre>docker compose start tournaments-ms
+Start-Sleep -Seconds 10
+docker compose ps
+
+# Clean shutdown:
+docker compose down --remove-orphans</pre><p class="why"><strong>Why:</strong> Restores instance 1 to verify full cluster health, then tears down all containers and networks cleanly.</p></section><section class="section runbook" id="runbook9"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 09+Spring+Cloud+Bus+et+Rabbit+MQ.pdf</span><h2>Section 9 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Use RabbitMQ and Spring Cloud Bus to refresh configuration across running services without restarting them.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command. Run URLs in a browser or Postman, not in PowerShell.</p><h4>Step 1 - PowerShell (Clean Old Containers &amp; Build All JARs)</h4><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_10_Cloud Bus\rayen-spring-cloud"
+docker compose down --remove-orphans
+mvn clean package -DskipTests</pre><p class="why"><strong>Why:</strong> Stops the old stack, removes orphan containers from previous sections, and rebuilds all service JARs.</p><h4>Step 2 - PowerShell (Start Full Stack with Bus &amp; RabbitMQ)</h4><pre>docker compose up --build -d
+Start-Sleep -Seconds 45
+docker compose ps</pre><p class="why"><strong>Why:</strong> Starts RabbitMQ broker, Eureka, Config Server, Tournaments, Team, and Gateway with automatic healthcheck coordination.</p><h4>Step 3 - Browser or Postman (RabbitMQ Management Dashboard)</h4><ul><li><a href="http://localhost:15672/">http://localhost:15672/</a></li></ul><p class="why"><strong>Why:</strong> Open RabbitMQ&#x27;s management page to inspect queues and exchanges; sign in using credentials below.</p><p class="note">Username: spring<br>Password: springpass</p><h4>Step 4 - Browser or Postman (Check Initial Configuration)</h4><ul><li><a href="http://localhost:9999/team/prod">http://localhost:9999/team/prod</a></li><li><a href="http://localhost:8081/api/teams/author">http://localhost:8081/api/teams/author</a></li></ul><p class="why"><strong>Why:</strong> Inspects the baseline author configuration before making any modifications.</p><h4>Step 5 - Edit team-prod.yml (Trigger Configuration Change)</h4><p class="why"><strong>Why:</strong> Open the Team production YAML file that Config Server mounts:</p><p class="note">C:\Users\hp\Desktop\Spring Cloud\SECTION_10_Cloud Bus\rayen-spring-cloud\configserver\src\main\resources\config\team-prod.yml</p><p class="note">Change author.name value, for example:<br>author:<br>  name: &quot;rayen [team update]&quot;<br>  email: &quot;rayenb_team_update@yahoo.com&quot;</p><h4>Step 6 - Broadcast Bus Refresh Event (PowerShell or Postman)</h4><p><strong>PowerShell (Recommended — 1-line command):</strong></p><pre>curl.exe -X POST http://localhost:8080/actuator/busrefresh</pre><p><strong>Postman:</strong> Send <strong>POST</strong> to <code>http://localhost:8080/actuator/busrefresh</code> with Body set to <strong>none</strong> (leaving Body as form-data or urlencoded causes a 415 error). Expected Status: <code>204 No Content</code>.</p><p class="why"><strong>Why:</strong> Sends an empty POST to the Actuator Bus Refresh endpoint; it immediately broadcasts a refresh event through RabbitMQ (returns 204 No Content).</p><h4>Step 7 - Browser or Postman (Verify Dynamic Update Without Restart)</h4><ul><li><a href="http://localhost:8081/api/teams/author">http://localhost:8081/api/teams/author</a></li></ul><p class="why"><strong>Why:</strong> Confirms that Team immediately reports the updated author value without needing a service restart.</p><h4>Step 8 - PowerShell (Teardown)</h4><pre>docker compose down --remove-orphans</pre><p class="why"><strong>Why:</strong> Shuts down the stack and cleans up all containers and networks cleanly.</p></section><section class="section runbook" id="runbook10"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 10+Résilience+des+microservices+avec+Resilience4J.pdf</span><h2>Section 10 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Use circuit breakers and fallbacks so Team and Gateway respond gracefully when a downstream service is unavailable.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command. Run URLs in a browser or Postman, not in PowerShell.</p><h4>Step 1 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_11_Resilience4J\rayen-spring-cloud&quot;
+docker compose down --remove-orphans
+mvn clean package -DskipTests
+docker compose up --build -d
+docker compose ps</pre><p class="why"><strong>Why:</strong> Stops any previous stack, builds the apps, and starts the Compose services.</p><h4>Step 2 - Browser or Postman</h4><ul><li><a href="http://localhost:8081/api/teams/1">http://localhost:8081/api/teams/1</a></li><li><a href="http://localhost:8888/api/teams/1">http://localhost:8888/api/teams/1</a></li></ul><p class="why"><strong>Why:</strong> Checks Team directly and through Gateway while all services are healthy.</p><p class="note">Stop both Tournament instances so Team cannot reach Tournament:</p><h4>Step 3 - PowerShell</h4><pre>docker compose stop tournaments-ms tournaments-ms2</pre><p class="why"><strong>Why:</strong> Stops both Tournament instances so Team cannot resolve Tournament.</p><h4>Step 4 - Browser or Postman</h4><ul><li><a href="http://localhost:8081/api/teams/1">http://localhost:8081/api/teams/1</a></li><li>The request should still return the team, with tournamentName set to NOT AVAILABLE.</li></ul><p class="why"><strong>Why:</strong> Checks the fallback response and the Team-side breaker state/events.</p><h4>Step 5 - Browser or Postman</h4><ul><li><a href="http://localhost:8081/actuator/circuitbreakers">http://localhost:8081/actuator/circuitbreakers</a></li></ul><p class="why"><strong>Why:</strong> Restores Tournament and restarts Team to reset its breaker for the next test.</p><h4>Step 6 - Browser or Postman</h4><ul><li><a href="http://localhost:8081/actuator/circuitbreakerevents?name=APIClientgetTournamentByCodeString">http://localhost:8081/actuator/circuitbreakerevents?name=APIClientgetTournamentByCodeString</a></li></ul><p class="why"><strong>Why:</strong> Checks that the Team response includes the Tournament data again.</p><p class="note">Start both Tournament instances, then restart Team to reset its breaker:</p><h4>Step 7 - PowerShell</h4><pre>docker compose start tournaments-ms tournaments-ms2
+Start-Sleep -Seconds 15
+docker compose restart teams-ms
+Start-Sleep -Seconds 15</pre><p class="why"><strong>Why:</strong> Restarts Tournament instances and resets the Team circuit breaker.</p><h4>Step 8 - Browser or Postman</h4><ul><li><a href="http://localhost:8081/api/teams/1">http://localhost:8081/api/teams/1</a></li></ul><p class="why"><strong>Why:</strong> Confirms recovery: returns Arsenal with Premier League details again.</p><h4>Step 9 - PowerShell</h4><pre># Stop Team to exercise Gateway circuit breaker:
+docker compose stop teams-ms
+
+# Send request 10 times to trip the breaker:
+1..10 | ForEach-Object {
+    try { Invoke-RestMethod -Uri "http://localhost:8888/api/teams/1" } catch { $_.Exception.Message }
+}</pre><p class="why"><strong>Why:</strong> Trips the Gateway circuit breaker with 10 failures, returning fallback: "An error occurred. Please contact the administrator. !".</p><h4>Step 10 - Browser or Postman</h4><ul><li><a href="http://localhost:8888/actuator/circuitbreakers">http://localhost:8888/actuator/circuitbreakers</a></li><li><a href="http://localhost:8888/actuator/circuitbreakerevents?name=teamCircuitBreaker">http://localhost:8888/actuator/circuitbreakerevents?name=teamCircuitBreaker</a></li></ul><p class="why"><strong>Why:</strong> Inspects Gateway's circuit breaker state (OPEN) and recorded events.</p><h4>Step 11 - PowerShell</h4><pre>docker compose start teams-ms
+Start-Sleep -Seconds 15
+docker compose restart gatewayserver</pre><p class="why"><strong>Why:</strong> Restarts Team and Gateway to restore normal routing.</p><h4>Step 12 - Browser or Postman</h4><ul><li><a href="http://localhost:8888/api/teams/1">http://localhost:8888/api/teams/1</a></li></ul><p class="why"><strong>Why:</strong> Verifies Gateway routing returns to normal 200 OK.</p></section><section class="section runbook" id="runbook11"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 11++Securing+microservices.pdf</span><h2>Section 11 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Secure Gateway routes with Keycloak access tokens and verify authentication and role-based access.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command.</p><h4>Step 1 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_12_Securing_gateway\rayen-spring-cloud&quot;
+mvn clean package -DskipTests
+docker compose up --build -d
+docker compose ps</pre><p class="why"><strong>Why:</strong> Builds all JARs and starts Keycloak (port 8090) and Gateway (port 8888). Wait ~25 seconds until all containers show healthy.</p><h4>Step 2 - Keycloak Configuration</h4><p>You can configure Keycloak either via the Web Console or directly via the Keycloak CLI in PowerShell:</p><p class="note"><strong>Option A: Web Console (http://localhost:8090/admin/)</strong><br>
+1. Sign in with username <code>admin</code>, password <code>admin</code> (master realm).<br>
+2. In <strong>Realm roles</strong>, click <strong>Create role</strong> &rarr; Name: <code>ADMIN</code> &rarr; Save.<br>
+3. In <strong>Clients</strong>, click <strong>Create client</strong> &rarr; Client ID: <code>tournament-test</code> &rarr; Next.<br>
+4. Enable <strong>Client authentication</strong> and <strong>Service accounts roles</strong> &rarr; Save.<br>
+5. In <strong>Credentials</strong> tab, copy the <strong>Client secret</strong>.<br>
+6. In <strong>Service accounts roles</strong> tab, click <strong>Assign role</strong> &rarr; select <code>ADMIN</code> &rarr; Assign.</p><p class="note"><strong>Option B: Headless PowerShell CLI</strong><br>Run this in PowerShell to configure Keycloak automatically:</p><pre>docker exec keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create roles -r master -s name=ADMIN
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=tournament-test -s serviceAccountsEnabled=true -s clientAuthenticatorType=client-secret -s secret=testsecret
+docker exec keycloak /opt/keycloak/bin/kcadm.sh add-roles -r master --uusername &quot;service-account-tournament-test&quot; --rolename ADMIN</pre><h4>Step 3 - Generate New Access Token (PowerShell &amp; Postman)</h4><p>Keycloak tokens by default expire in 60 seconds. You can extend the lifespan so your tokens remain valid for 24 hours during testing:</p><pre># Optional: Increase token lifespan to 24 hours (prevents 401 expiration while testing):
+docker exec keycloak /opt/keycloak/bin/kcadm.sh update realms/master -s accessTokenLifespan=86400
+
+# Generate a fresh access token from Keycloak:
+$token = (Invoke-RestMethod -Method Post -Uri "http://localhost:8090/realms/master/protocol/openid-connect/token" -Body @{ grant_type="client_credentials"; client_id="tournament-test"; client_secret="GD0cBdbmv6bnADONl7AuCq8TXJVasOGa" }).access_token
+
+# Copy the token directly to your Windows clipboard:
+$token | Set-Clipboard</pre><p class="why"><strong>Why:</strong> Obtains a fresh JWT Bearer token containing the <code>ADMIN</code> role from Keycloak. <code>Set-Clipboard</code> copies it instantly so you can simply press <strong>Ctrl+V</strong> in Postman's Bearer Token field.</p><h4>Step 4 - Test Protected Gateway Routes</h4><pre># 1. Authenticated request with ADMIN role (Expect 200 OK):
+Invoke-RestMethod -Uri &quot;http://localhost:8888/api/tournaments/PL&quot; -Headers @{ Authorization = &quot;Bearer $token&quot; }
+
+# 2. Authenticated request to Team route (Expect 200 OK):
+Invoke-RestMethod -Uri &quot;http://localhost:8888/api/teams/1&quot; -Headers @{ Authorization = &quot;Bearer $token&quot; }
+
+# 3. Unauthenticated request without token (Expect 401 Unauthorized):
+try { Invoke-RestMethod -Uri &quot;http://localhost:8888/api/tournaments/PL&quot; } catch { $_.Exception.Response.StatusCode }</pre><h4>Step 5 - PowerShell</h4><pre>docker compose down --remove-orphans</pre><p class="why"><strong>Why:</strong> Stops and removes the Section 11 containers after testing.</p></section><section class="section runbook" id="runbook12"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 13++Securing+microservices+using+docker.pdf</span><h2>Section 12 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Run secured services in Docker with PostgreSQL persistence, and verify Keycloak data persists across stack restarts.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command.</p><h4>Step 1 - PowerShell</h4><pre>cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_13_Securing_Docker\rayen-spring-cloud&quot;
+mvn clean package -DskipTests
+docker compose up --build -d
+docker compose ps</pre><p class="why"><strong>Why:</strong> Builds all services and starts PostgreSQL, Keycloak (8090), and Gateway (8888). Keycloak uses the volume <code>kc_pg_data</code> for persistent storage.</p><h4>Step 2 - Keycloak Configuration</h4><p class="note"><strong>Option A: Web Console (http://localhost:8090/admin/)</strong><br>
+Sign in as <code>admin</code> / <code>admin</code> in the master realm.<br>
+1. Create Realm role: <code>ADMIN</code>.<br>
+2. Create Client: <code>tournament-app</code> with <strong>Client authentication: ON</strong> and <strong>Service accounts: ON</strong>.<br>
+3. In Credentials tab, copy the Client secret.<br>
+4. In Service account roles tab, assign the <code>ADMIN</code> role.</p><p class="note"><strong>Option B: Headless PowerShell CLI</strong></p><pre>docker exec keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create roles -r master -s name=ADMIN
+docker exec keycloak /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=tournament-app -s serviceAccountsEnabled=true -s clientAuthenticatorType=client-secret -s secret=appsecret
+docker exec keycloak /opt/keycloak/bin/kcadm.sh add-roles -r master --uusername &quot;service-account-tournament-app&quot; --rolename ADMIN</pre><h4>Step 3 - Request Token &amp; Test Protected Route (PowerShell or Postman)</h4><pre># Generate token, copy to clipboard, and display it:
+$token = (Invoke-RestMethod -Method Post -Uri "http://localhost:8090/realms/master/protocol/openid-connect/token" -Body @{ grant_type="client_credentials"; client_id="tournament-app"; client_secret="uzevidMRLiXoeTRbdtCdmg0uovcZhTfu" }).access_token
+$token | Set-Clipboard
+$token
+
+# Test Gateway protected route (Expect 200 OK):
+Invoke-RestMethod -Uri "http://localhost:8888/api/tournaments/PL" -Headers @{ Authorization = "Bearer $token" }</pre><p class="result">Expect 200 OK with Premier League tournament details. In Postman: Set Auth Type to Bearer Token, press Ctrl+V in the Token box, and Send to http://localhost:8888/api/tournaments/PL.</p><h4>Step 4 - Verify Persistence Across Restart</h4><pre># Stop and remove containers (named volume kc_pg_data is preserved):
+docker compose down --remove-orphans
+
+# Restart the stack:
+docker compose up -d
+Start-Sleep -Seconds 20
+docker compose ps
+
+# Re-obtain token with the existing client to verify PostgreSQL persisted the data:
+$newToken = (Invoke-RestMethod -Method Post -Uri "http://localhost:8090/realms/master/protocol/openid-connect/token" -Body @{ grant_type="client_credentials"; client_id="tournament-app"; client_secret="uzevidMRLiXoeTRbdtCdmg0uovcZhTfu" }).access_token
+$newToken | Set-Clipboard
+$newToken
+Invoke-RestMethod -Uri &quot;http://localhost:8888/api/tournaments/PL&quot; -Headers @{ Authorization = &quot;Bearer $newToken&quot; }</pre><p class="why"><strong>Why:</strong> Confirms Keycloak client and roles survived container removal because they are stored in the PostgreSQL volume.</p><h4>Step 5 - PowerShell</h4><pre>docker compose down --remove-orphans</pre><p class="why"><strong>Why:</strong> Stops the stack cleanly when finished.</p></section><section class="section runbook" id="runbook13"><span class="tag">COPYABLE RUNBOOK</span><span class="pdf-tag">📄 14+event+driven+ms+using+RabbitMQ.pdf</span><h2>Section 13 - exact command and test sequence</h2><p class="runbook-target"><strong>Target:</strong> Send a Team creation event through RabbitMQ and verify that asynchronous message processing completes.</p><p>Follow these actions in order. Open a separate PowerShell window for every long-running Spring Boot or Docker log command.</p><h4>Step 1 - PowerShell</h4><pre># Stop Section 12 if still running to avoid container port collisions:
+cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_13_Securing_Docker\rayen-spring-cloud&quot;
+docker compose down --remove-orphans
+
+# Build and start Section 13:
+cd &quot;C:\Users\hp\Desktop\Spring Cloud\SECTION_14_Event_RabbitMQ\rayen-spring-cloud&quot;
+mvn clean package -DskipTests
+docker compose up --build -d
+docker compose ps</pre><p class="why"><strong>Why:</strong> Starts RabbitMQ (5672/15672), Keycloak (8090), Eureka, Tournaments, Team, Message, and Gateway (8888). Wait ~30 seconds for health checks.</p><h4>Step 2 - Obtain Keycloak Token</h4><p>Ensure Keycloak has client <code>tournament-app</code> configured (or use the one persisted from Section 12). <br><strong style="color:var(--warn-fg,#d97706);">Important Postman Note:</strong> In Section 11 the client ID was <code>tournament-test</code>, but from Section 12 &amp; 13 onwards it is <code>tournament-app</code> with secret <code>uzevidMRLiXoeTRbdtCdmg0uovcZhTfu</code>. Setting <code>tournament-test</code> with this secret in Postman will cause <strong>401 Unauthorized</strong>.</p><pre># Generate token using persistent client tournament-app, copy to clipboard, and print:
+$token = (Invoke-RestMethod -Method Post -Uri "http://localhost:8090/realms/master/protocol/openid-connect/token" -Body @{ grant_type="client_credentials"; client_id="tournament-app"; client_secret="uzevidMRLiXoeTRbdtCdmg0uovcZhTfu" }).access_token
+$token | Set-Clipboard
+$token</pre><h4>Step 3 - Create Team &amp; Trigger Asynchronous Event</h4><p>In Postman, send <strong>POST</strong> to <code>http://localhost:8888/api/teams/create</code> with Bearer Token and raw JSON body. Or execute directly in PowerShell:</p><pre>$body = @{
+    teamName = &quot;Test Team&quot;
+    coachName = &quot;Test Coach&quot;
+    tournamentCode = &quot;PL&quot;
+    email = &quot;test@example.com&quot;
+    mobileNumber = &quot;123456789&quot;
+} | ConvertTo-Json
+
+Invoke-RestMethod -Method Post -Uri &quot;http://localhost:8888/api/teams/create&quot; -Headers @{ Authorization = &quot;Bearer $token&quot;; &quot;Content-Type&quot; = &quot;application/json&quot; } -Body $body</pre><p class="result">Expect 201 Created and response message: &quot;Team created successfully&quot;.</p><h4>Step 4 - Verify Asynchronous Event Round-Trip</h4><p>Team 1 is seeded at startup, so the created team is ID 2. Wait 3 seconds for RabbitMQ messaging to complete, then inspect:</p><pre>Invoke-RestMethod -Uri &quot;http://localhost:8888/api/teams/2&quot; -Headers @{ Authorization = &quot;Bearer $token&quot; }</pre><p class="result">Verify that <code>teamDto.communicationDone</code> is <strong>true</strong>. This proves the event traveled through RabbitMQ &rarr; processed by <code>message-ms</code> &rarr; reply sent back to <code>communication-sent</code> &rarr; consumed and saved in DB by <code>teams-ms</code>.</p><h4>Step 5 - Follow Event Logs</h4><pre>docker compose logs --tail 30 message teams-ms rabbit</pre><h4>Step 6 - PowerShell</h4><pre>docker compose down --remove-orphans</pre><p class="why"><strong>Why:</strong> Shuts down the Section 13 stack cleanly.</p></section>
+<nav aria-label="Course sections">
+<a href="#s1">1 Services</a><a href="#s2">2 Communication</a><a href="#s3">3 Eureka</a><a href="#s4">4 Gateway</a><a href="#s5">5 Config</a><a href="#s6">6 Docker</a><a href="#s7">7 MySQL</a><a href="#s8">8 Compose</a><a href="#s9">9 Bus</a><a href="#s10">10 Resilience</a><a href="#s11">11 Security</a><a href="#s12">12 Secure Docker</a><a href="#s13">13 Events</a>
+</nav>
+<section class="section" id="s1"><span class="tag">SECTION_02_CREA_MS</span><span class="pdf-tag">📄 01+Création+des+microservices.pdf</span><h2>1. Create the microservices</h2>
+<p><strong>Target:</strong> Create the REST API foundation. Tournament looks up a tournament using a code such as PL; Team looks up a team using its numeric ID. They are separate apps, so they can be developed and started independently.</p>
+<p class="files"><strong>Main files:</strong> Each service's Controller defines routes, ServiceImpl loads records, Entity/Repository define stored data, and <code>application.yml</code> sets its port and H2 database.</p>
+<h3>Run in two terminals</h3><p class="block-label"><span>PowerShell - step 1</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_02_CREA_MS\rayen-spring-cloud\tournament-microservice"
+mvn spring-boot:run</pre><p class="block-label"><span>PowerShell - step 2</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_02_CREA_MS\rayen-spring-cloud\team-microservice"
+mvn spring-boot:run</pre>
+<p class="block-label"><span>Postman - step 3</span></p><pre>GET http://localhost:8080/api/tournaments/PL
+GET http://localhost:8080/api/tournaments/CL
+GET http://localhost:8081/api/teams/1</pre><p class="result">Expected: PL/CL tournament data and seeded Team ID 1. 8080 and 8081 keep the two APIs separate.</p></section>
+<section class="section" id="s2"><span class="tag">SECTION_03_COMM_MS</span><span class="pdf-tag">📄 02+Communication+entre+les+microservices+avec+Spring+Cloud.pdf</span><h2>2. Service-to-service communication</h2>
+<p><strong>Target:</strong> When you request a Team, Team also looks up that team's tournament and returns both records. This is synchronous request/response: the Team service waits for Tournament to answer before it can finish its own response.</p>
+<p class="files"><strong>Main files:</strong> Team <code>TeamServiceImpl.java</code> coordinates the two calls; <code>TeamMicroserviceApplication.java</code> creates the WebClient bean and enables Feign; <code>APIClient.java</code> declares the Feign request; Team <code>pom.xml</code> adds WebFlux and OpenFeign.</p>
+<h3>Approach 1: WebClient</h3><p>WebClient is Spring's HTTP client. In the WebClient version, Team builds a GET request to <code>http://localhost:8080/api/tournaments/PL</code>, reads the JSON response into <code>TournamentDto</code>, then combines it with the Team data. The project registers WebClient as a Spring bean so the service can inject and reuse it. The code ends with <code>.block()</code>, so this particular call waits for the response even though WebClient can also be used reactively without blocking.</p>
+<h3>Approach 2: OpenFeign</h3><p>OpenFeign lets you describe the same HTTP call as a Java interface. <code>APIClient.java</code> gives the base address and maps a Java method to <code>GET /api/tournaments/{tournament-code}</code>. Spring generates the HTTP client implementation. Team calls the method and receives a <code>TournamentDto</code> without writing the request-building steps.</p>
+<p class="note"><strong>How your SECTION_03 code chooses:</strong> Both versions are in <code>TeamServiceImpl.java</code>. It tries the Feign client first; the WebClient branch is used only if the Feign client is unavailable. So with the normal project startup, this workspace uses OpenFeign. The PDF first teaches WebClient, then replaces it with Feign.</p>
+<p><strong>Why these ports:</strong> Team listens on <strong>8081</strong>, so Postman/browser calls <code>/api/teams/1</code> there. Tournament listens on <strong>8080</strong>, so Team sends its internal HTTP request there. They must use different ports because both apps run on the same computer. In this section, <code>localhost</code> works because both apps run directly on Windows; inside Docker, localhost would mean the current container, so later sections use Docker service names or Eureka.</p>
+<h3>Run in separate terminals</h3><p class="block-label"><span>PowerShell - step 1</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_03_COMM_MS\rayen-spring-cloud\tournament-microservice"
+mvn spring-boot:run</pre><p class="block-label"><span>PowerShell - step 2</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_03_COMM_MS\rayen-spring-cloud\team-microservice"
+mvn spring-boot:run</pre>
+<h3>Test the whole call chain</h3><p class="block-label"><span>Postman - step 3</span></p><pre>GET http://localhost:8081/api/teams/1</pre><p class="result">Expected: the response contains the Team and its Tournament DTO (for seeded Team 1, Tournament code PL). The Team endpoint is the test entry point; Tournament port 8080 is called internally. You can call <code>GET http://localhost:8080/api/tournaments/PL</code> separately to check Tournament directly.</p></section>
+<section class="section" id="s3"><span class="tag">SECTION_04_EUREKA</span><span class="pdf-tag">📄 03+Spring+Cloud+Netflix+Eureka.pdf</span><h2>3. Service discovery with Eureka</h2>
+<p><strong>Target:</strong> Eureka is a live directory for your running services. Tournament and Team register their service names there; Team can find a Tournament instance without maintaining its address itself. A second Tournament instance lets you see that more than one server can provide the same API.</p>
+<p class="files"><strong>Main files:</strong> Eureka's <code>ServiceRegistryApplication.java</code> and <code>application.properties</code>; service <code>application.yml</code> files register clients; Team <code>APIClient.java</code> locates Tournament.</p>
+<p class="block-label"><span>PowerShell - step 1</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_04_EUREKA\rayen-spring-cloud"
+mvn -pl eurekaserver spring-boot:run</pre><p class="block-label"><span>PowerShell - step 2</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_04_EUREKA\rayen-spring-cloud\tournament-microservice"
+mvn spring-boot:run</pre><p class="block-label"><span>PowerShell - step 3</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_04_EUREKA\rayen-spring-cloud\tournament-microservice"
+mvn package -DskipTests
+java -jar .\target\tournament-microservice-0.0.1-SNAPSHOT.jar --server.port=8082</pre><p>Run Team from its folder with <code>mvn spring-boot:run</code>.</p><p class="block-label"><span>Browser - step 4</span></p><pre>http://localhost:8761/</pre>
+<p class="block-label"><span>Postman - step 5</span></p><pre>GET http://localhost:8081/api/teams/1</pre><p class="result">Open <code>http://localhost:8761/</code> to see the Eureka dashboard. The clients register against <code>http://localhost:8761/eureka/</code>; that path is the registry API used by services, while the root path is the human-facing page. Tournament port 8082 is the second local copy, so it does not collide with 8080.</p></section>
+<section class="section" id="s4"><span class="tag">SECTION_05_GATEWAY</span><span class="pdf-tag">📄 04+Spring+Cloud+Api+Gateway.pdf</span><h2>4. API Gateway</h2>
+<p><strong>Target:</strong> Gateway is the public front door for your APIs. It matches the URL path, finds the named service through Eureka, and forwards the request. A client can use Gateway instead of knowing each service address.</p>
+<p class="files"><strong>Main files:</strong> <code>GatewayserverApplication.java</code> maps API paths; Gateway <code>application.yml</code> sets its port and registry address.</p>
+<p>Start Eureka, Tournament, Team and Gateway in separate terminals. Use <code>mvn -pl eurekaserver spring-boot:run</code> from the project root and <code>mvn spring-boot:run</code> from each service folder.</p>
+<p class="block-label"><span>Browser - step 1</span></p><pre>http://localhost:8761/</pre>
+<p class="block-label"><span>Postman - step 2</span></p><pre>GET http://localhost:8888/api/tournaments/PL
+GET http://localhost:8888/api/teams/1</pre><p class="result">8888 is the single client-facing entry point; 8080/8081 remain direct service ports.</p></section>
+<section class="section" id="s5"><span class="tag">SECTION_06_CONFIGSERVER</span><span class="pdf-tag">📄 05+Spring+Cloud+Config+Server.pdf</span><h2>5. Centralized configuration</h2>
+<p><strong>Target:</strong> Move settings such as profile-specific author/build values out of the service code. Config Server returns the requested Team or Tournament profile; the microservice loads those values when it starts.</p>
+<p class="files"><strong>Main files:</strong> Config Server <code>application.yml</code>; its <code>config/</code> folder with Team/Tournament profile files; service <code>application.yml</code> imports; Tournament <code>Configuration.java</code> and controller expose sample properties.</p>
+<p class="block-label"><span>PowerShell - step 1</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_06_CONFIGSERVER\rayen-spring-cloud\configserver"
+mvn spring-boot:run</pre><p>Start Eureka and the Tournament/Team apps from their folders with <code>mvn spring-boot:run</code>.</p>
+<h3>Config Server test links</h3><p>The PDF screenshot requests <code>/department/prod</code> because the professor's sample service is Department. In your code the service is named <code>tournament</code>, so use these links instead:</p><p><a href="http://localhost:9999/tournament/prod">Open Tournament production configuration</a><br><a href="http://localhost:9999/team/prod">Open Team production configuration</a></p><p class="block-label"><span>Postman - step 2</span></p><pre>GET http://localhost:9999/tournament/prod
+GET http://localhost:9999/team/prod
+GET http://localhost:8080/api/tournaments/version
+GET http://localhost:8080/api/tournaments/author</pre><p class="result">The first link returns a JSON environment response: <code>name</code> should be <code>tournament</code>, <code>profiles</code> should include <code>prod</code>, and <code>propertySources</code> should show values from <code>classpath:/config/tournament-prod.yml</code> (for example <code>build.version: 2.0</code>). Team uses <code>team-prod.yml</code>. On the running Tournament API, <code>/version</code> returns the configured version and <code>/author</code> returns the configured author name/email. Port 9999 is Config Server; 8080 is Tournament HTTP.</p><p>For the PDF's Actuator check, open <code>http://localhost:8080/actuator</code>; it lists the management links exposed by Tournament. The PDF also demonstrates refresh with <code>POST http://localhost:8080/actuator/refresh</code> after changing a served property, then rechecking <code>/api/tournaments/version</code> or <code>/author</code>. Your <code>@Value</code> version field is on a controller without <code>@RefreshScope</code>, so restart Tournament if that value does not update live.</p><p class="note">Your Config Server currently uses the classpath <code>config/</code> folder. The PDF's filesystem and GitHub backends are examples, not active backends in this section's <code>application.yml</code>; the corresponding settings are commented out.</p></section>
+<section class="section" id="s6"><span class="tag">SECTION_07_Intro_to_Docker</span><span class="pdf-tag">📄 06+Introduction+à+Docker_v2.pdf</span><h2>6. Package one service as a Docker image</h2>
+<p><strong>Target:</strong> Turn the built Tournament JAR into a Docker image (a packaged template), then start a container (a running copy of that image). This section tests one service without the rest of the Cloud stack.</p>
+<p class="files"><strong>Main files:</strong> <code>tournament-microservice/Dockerfile</code> copies and starts the JAR; its <code>pom.xml</code> builds it; <code>application.yml</code> disables external Config/Eureka for this standalone test.</p>
+<p class="block-label"><span>PowerShell - step 1</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_07_Intro_to_Docker\rayen-spring-cloud\tournament-microservice"
+mvn clean package -DskipTests
+Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+docker build -t rayen/tournament:v1 .
+docker run -d --name tournament-container -p 8083:8080 -e SPRING_CLOUD_CONFIG_ENABLED=false -e SPRING_CLOUD_DISCOVERY_ENABLED=false -e EUREKA_CLIENT_ENABLED=false rayen/tournament:v1</pre>
+<p class="block-label"><span>Postman - step 2</span></p><pre>GET http://localhost:8083/api/tournaments/PL
+GET http://localhost:8083/api/tournaments/CL</pre>
+<p class="block-label"><span>PowerShell - step 3</span></p><pre>docker stop tournament-container
+docker rm tournament-container</pre><p class="result">8083 is your computer's port; Docker forwards it to the app's 8080 inside the container.</p></section>
+<section class="section" id="s7"><span class="tag">SECTION_08_Mysql_As_Docker</span><span class="pdf-tag">📄 07+Utiliser+la+BD+Mysql+en+tant+que+Docker.pdf</span><h2>7. Use MySQL in Docker</h2>
+<p><strong>Target:</strong> Replace Tournament's in-memory database with MySQL in a container. The application connects to the database over the Docker network, and you verify both the HTTP result and the stored table rows.</p>
+<p class="files"><strong>Main files:</strong> Tournament <code>application.yml</code> defines the JDBC URL; root <code>docker-compose.yml</code> defines containers; the service Dockerfile builds its image.</p>
+<h3>Manual MySQL container test</h3><p>This manual mode publishes the database to Windows so SQL Electron or another database tool can connect. Use it instead of Compose, because both modes use the container name <code>mysqldb</code>. Run the network creation only once; if it already exists, skip that line.</p><p class="block-label"><span>PowerShell - step 1</span></p><pre>docker network create my-net
+docker run -d --network my-net -p 3306:3306 --name mysqldb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=test mysql:latest</pre><p>Wait for MySQL to finish starting, then connect with host <code>localhost</code>, port <code>3306</code>, database <code>test</code>, username <code>root</code>, password <code>root</code>. Run Tournament locally with <code>mvn spring-boot:run</code> from its folder and test <code>GET http://localhost:8080/api/tournaments/PL</code>.</p>
+<p class="block-label"><span>PowerShell - step 2</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_08_Mysql_As_Docker\rayen-spring-cloud"
+docker compose up --build -d
+docker compose ps</pre><p class="block-label"><span>Postman - step 3</span></p><pre>GET http://localhost:8080/api/tournaments/PL</pre>
+<p class="block-label"><span>PowerShell - step 4</span></p><pre>docker exec mysqldb mysql -uroot -proot -D test -e "SHOW TABLES; SELECT * FROM tournament;"
+docker compose down --remove-orphans</pre>
+<p>MySQL listens on 3306 for database connections. Your manual Docker command publishes it to host port 3306, which lets a Windows database client use host <code>localhost</code>, port <code>3306</code>, database <code>test</code>, user/password <code>root</code>. The Compose file leaves MySQL private to Docker, so a desktop database client cannot connect to that Compose container unless you add a <code>3306:3306</code> port mapping. The API uses 8080.</p><p class="note">In your pasted cleanup command, the container name is <code>mysqldb</code>, not <code>mysqldbs</code>. Compose avoids manual duplicate-container cleanup.</p></section>
+<section class="section" id="s8"><span class="tag">SECTION_09_DOCKERIZE_VOS_MS</span><span class="pdf-tag">📄 08+Dockerize+vos+Micorservices_V2.pdf</span><h2>8. Dockerize the services with Compose</h2>
+<p><strong>Target:</strong> Run the Cloud components as one Docker Compose application. Health checks and dependency rules control startup order; a second Tournament instance demonstrates load balancing, while Gateway provides the shared API address.</p>
+<p class="files"><strong>Main files:</strong> root <code>docker-compose.yml</code> defines containers, health checks and ports; each service Dockerfile builds its JAR; Config Server's <code>config/</code> contains profile data; Gateway <code>application.yml</code> enables discovery routing.</p>
+<p class="block-label"><span>PowerShell - step 1</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_09_DOCKERIZE_VOS_MS\rayen-spring-cloud"
+docker compose down --remove-orphans
+mvn clean package -DskipTests
+docker compose up --build -d
+docker compose ps</pre><p class="block-label"><span>Browser - step 2</span></p><pre>http://localhost:8761/</pre>
+<p class="block-label"><span>Postman - step 3</span></p><pre>GET http://localhost:9999/tournament/prod
+GET http://localhost:8080/api/tournaments/PL
+GET http://localhost:8084/api/tournaments/PL
+GET http://localhost:8888/api/tournaments/PL
+GET http://localhost:8888/api/teams/1</pre><p class="result">8084 maps to the second container's internal 8080. Eureka=8761, Config=9999, Gateway=8888, Team=8081.</p><p>Compose health checks call <code>/actuator/health</code> inside each container. Since this section publishes those services to your computer, you can also open <code>http://localhost:8761/actuator/health</code>, <code>http://localhost:9999/actuator/health</code>, <code>http://localhost:8080/actuator/health</code>, <code>http://localhost:8084/actuator/health</code>, <code>http://localhost:8081/actuator/health</code> and <code>http://localhost:8888/actuator/health</code>. For the second Tournament container, the app listens on 8080 internally; Docker exposes it as host 8084.</p><p class="block-label"><span>PowerShell - step 4</span></p><pre>docker compose stop tournaments-ms</pre>
+<p class="block-label"><span>Postman - step 5</span></p><pre>GET http://localhost:8888/api/tournaments/PL</pre>
+<p class="block-label"><span>PowerShell - step 6</span></p><pre>docker compose start tournaments-ms
+docker compose down --remove-orphans</pre><p>Stopping one instance demonstrates how discovery/routing behaves during a service failure.</p></section>
+<section class="section" id="s9"><span class="tag">SECTION_10_Cloud Bus</span><span class="pdf-tag">📄 09+Spring+Cloud+Bus+et+Rabbit+MQ.pdf</span><h2>9. Refresh settings with Spring Cloud Bus</h2>
+<p><strong>Target:</strong> When a config file changes, Spring Cloud Bus publishes a refresh event through RabbitMQ. Connected microservices receive it and reload configuration without a manual restart.</p>
+<p class="files"><strong>Main files:</strong> Compose starts RabbitMQ; Config Server/service POMs and <code>application.yml</code> add Bus settings; <code>config/team-prod.yml</code> supplies the value to change.</p>
+<p class="block-label"><span>PowerShell - step 1</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_10_Cloud Bus\rayen-spring-cloud"
+docker compose down --remove-orphans
+mvn clean package -DskipTests
+docker compose up --build -d
+docker compose ps</pre><p class="block-label"><span>Browser - step 2</span></p><pre>http://localhost:15672/</pre>
+<p class="block-label"><span>Postman - step 3</span></p><pre>GET http://localhost:9999/team/prod
+GET http://localhost:8081/api/teams/author</pre>
+<p>RabbitMQ uses 5672 for messages and 15672 for its web page (Compose login: spring/springpass). Change <code>author.name</code> in <code>configserver/src/main/resources/config/team-prod.yml</code>, then:</p><p class="block-label"><span>PowerShell or Postman - step 4</span></p><pre># In PowerShell (Recommended 1-line command):
+curl.exe -X POST http://localhost:8080/actuator/busrefresh
+
+# In Postman: POST http://localhost:8080/actuator/busrefresh (Body: none)</pre><p class="result">Expected refresh status: 204 No Content. Recheck the Team author endpoint (http://localhost:8081/api/teams/author) for the changed value.</p><h3>Config Monitor and webhook (PDF option)</h3><p>The PDF also shows automatic refresh from a GitHub push: Config Server's <code>spring-cloud-config-monitor</code> dependency receives a webhook at <code>http://localhost:9999/monitor</code>, then sends the refresh event through RabbitMQ. The PDF forwards a temporary public Hookdeck address to that local URL using:</p><p class="block-label"><span>PowerShell - step 6</span></p><pre>hookdeck listen 9999 Source --cli-path /monitor</pre><p>Replace <code>Source</code> with the source name created in Hookdeck; configure your GitHub webhook to use the public Hookdeck URL. After committing a config change, verify it at <code>GET http://localhost:8081/api/teams/author</code>. Your SECTION_10 Compose currently reads a mounted local config directory (<code>file:/config</code>) and includes Config Monitor, but it does not configure a Git backend. The pasted command list tests Bus refresh; the automatic GitHub webhook demo needs Git-backed config and a webhook configured first.</p><p class="note">Do not reuse the CLI key printed in the PDF. Sign in with your own Hookdeck account and use your own temporary key/source URL.</p></section>
+<section class="section" id="s10"><span class="tag">SECTION_11_Resilience4J</span><span class="pdf-tag">📄 10+Résilience+des+microservices+avec+Resilience4J.pdf</span><h2>10. Circuit breakers and fallbacks</h2>
+<p><strong>Target:</strong> A circuit breaker watches calls that fail. It opens after repeated failures and temporarily stops sending calls, which avoids waiting on a service that is down. Your project tests this both for Team-to-Tournament calls and Gateway-to-Team calls, then checks the fallback and recorded events.</p>
+<p class="files"><strong>Main files:</strong> Team <code>TeamServiceImpl.java</code> and <code>application.yml</code>; Gateway <code>GatewayserverApplication.java</code>, <code>application.yml</code> and <code>FallBackController.java</code>.</p>
+<p class="block-label"><span>PowerShell - step 1</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_11_Resilience4J\rayen-spring-cloud"
+docker compose down --remove-orphans
+mvn clean package -DskipTests
+docker compose up --build -d
+docker compose ps</pre><p class="block-label"><span>Postman - step 2</span></p><pre>GET http://localhost:8081/api/teams/1
+GET http://localhost:8888/api/teams/1</pre>
+<p class="block-label"><span>PowerShell - step 3</span></p><pre>docker compose stop tournaments-ms tournaments-ms2</pre>
+<p class="block-label"><span>Postman - step 4</span></p><pre>GET http://localhost:8081/api/teams/1
+GET http://localhost:8081/actuator/circuitbreakers
+GET http://localhost:8081/actuator/circuitbreakerevents?name=APIClientgetTournamentByCodeString</pre>
+<p>When Tournament is down, Team should still return its data with tournamentName <code>NOT AVAILABLE</code>. For Gateway failure, stop Team, send its Gateway request repeatedly, then inspect <code>/actuator/circuitbreakers</code> and <code>/actuator/circuitbreakerevents?name=teamCircuitBreaker</code> on port 8888. Restore with <code>docker compose start tournaments-ms tournaments-ms2 teams-ms</code>.</p></section>
+<section class="section" id="s11"><span class="tag">SECTION_12_Securing_gateway</span><span class="pdf-tag">📄 11++Securing+microservices.pdf</span><h2>11. Secure Gateway with Keycloak</h2>
+<p><strong>Target:</strong> Keycloak signs a token that proves who is calling. Gateway validates that token (authentication), then checks permissions (authorization): Tournament routes require ADMIN, while Team routes require a valid logged-in token.</p>
+<p class="files"><strong>Main files:</strong> Gateway <code>security/SecurityConfig.java</code> holds route permissions; <code>KeycloakRoleConverter.java</code> reads roles; Gateway <code>application.yml</code> sets JWK discovery; Compose starts Keycloak.</p>
+<p class="block-label"><span>PowerShell - step 1</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_12_Securing_gateway\rayen-spring-cloud"
+mvn clean package -DskipTests
+docker compose up --build -d
+docker compose ps</pre>
+<p>Keycloak is <code>http://localhost:8090/admin/</code> (admin/admin). Create an OpenID Connect client with client authentication and service accounts enabled; assign realm role ADMIN. In Postman, POST to <code>http://localhost:8090/realms/master/protocol/openid-connect/token</code> with form fields <code>grant_type=client_credentials</code>, <code>client_id</code>, and <code>client_secret</code>. Gateway validates tokens using the JWK endpoint <code>http://localhost:8090/realms/master/protocol/openid-connect/certs</code> from Windows; inside Docker it must use <code>http://keycloak:8080/realms/master/protocol/openid-connect/certs</code> because containers use service names and internal ports.</p>
+<p class="block-label"><span>PowerShell - Generate New Access Token</span></p><pre># Generate fresh JWT token with client credentials and copy to clipboard:
+$token = (Invoke-RestMethod -Method Post -Uri "http://localhost:8090/realms/master/protocol/openid-connect/token" -Body @{ grant_type="client_credentials"; client_id="tournament-test"; client_secret="GD0cBdbmv6bnADONl7AuCq8TXJVasOGa" }).access_token
+$token | Set-Clipboard</pre>
+<p class="block-label"><span>Postman - step 2</span></p><pre>GET http://localhost:8888/api/tournaments/PL   ADMIN token: 200; no token: 401; no ADMIN role: 403
+GET http://localhost:8888/api/teams/1          valid token: allowed; no token: 401</pre><p>8090 is the host port for Keycloak; inside Docker Gateway calls Keycloak on 8080. Gateway is exposed on 8888.</p></section>
+<section class="section" id="s12"><span class="tag">SECTION_13_Securing_Docker</span><span class="pdf-tag">📄 13++Securing+microservices+using+docker.pdf</span><h2>12. Run secured services in Docker</h2>
+<p><strong>Target:</strong> Run the secured stack inside a private Docker network. Only Keycloak and Gateway are published to your computer; service-to-service traffic stays inside Docker. PostgreSQL and its named volume keep Keycloak clients and roles after containers restart.</p>
+<p class="files"><strong>Main file:</strong> <code>docker-compose.yml</code> wires PostgreSQL, Keycloak, Eureka, Config, services and Gateway; named volume <code>kc_pg_data</code> stores Keycloak data.</p>
+<p class="block-label"><span>PowerShell - step 1</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_13_Securing_Docker\rayen-spring-cloud"
+mvn clean package -DskipTests
+docker compose up --build -d
+docker compose ps</pre><p>Test Keycloak at port 8090 and protected APIs through Gateway at 8888. With an ADMIN bearer token, <code>GET /api/tournaments/PL</code> should work. In this Compose setup only Keycloak and Gateway have host ports.</p><p class="block-label"><span>PowerShell - Generate New Access Token</span></p><pre># Generate token using persistent client tournament-app:
+$token = (Invoke-RestMethod -Method Post -Uri "http://localhost:8090/realms/master/protocol/openid-connect/token" -Body @{ grant_type="client_credentials"; client_id="tournament-app"; client_secret="uzevidMRLiXoeTRbdtCdmg0uovcZhTfu" }).access_token
+$token | Set-Clipboard
+$token
+
+# Test Gateway:
+Invoke-RestMethod -Uri "http://localhost:8888/api/tournaments/PL" -Headers @{ Authorization = "Bearer $token" }</pre>
+<p class="block-label"><span>PowerShell - step 2</span></p><pre>docker compose down --remove-orphans
+docker compose up -d</pre><p class="result">Confirm the client and role remain after restart. Normal <code>down</code> keeps the volume; <code>down -v</code> deletes it.</p></section>
+<section class="section" id="s13"><span class="tag">SECTION_14_Event_RabbitMQ</span><span class="pdf-tag">📄 14+event+driven+ms+using+RabbitMQ.pdf</span><h2>13. Asynchronous events with RabbitMQ</h2>
+<p><strong>Target:</strong> Creating a Team saves it first, then publishes a message to RabbitMQ. The Message service processes the email/SMS function and publishes the Team ID back. Team consumes that reply and sets communicationDone to true. The work happens asynchronously, so the create request can finish before the reply is handled.</p>
+<p class="files"><strong>Main files:</strong> <code>message/functions/MessageFunctions.java</code> processes email/SMS functions; message DTO and <code>application.yml</code> describe the message/destinations; Team <code>TeamController.java</code>, <code>TeamServiceImpl.java</code> and <code>TeamFunctions.java</code> create, publish and consume events; root Compose starts RabbitMQ and services.</p>
+<p class="block-label"><span>PowerShell - step 1</span></p><pre>cd "C:\Users\hp\Desktop\Spring Cloud\SECTION_14_Event_RabbitMQ\rayen-spring-cloud"
+mvn clean package -DskipTests
+docker compose up --build -d
+docker compose ps</pre><p>RabbitMQ console: <a href="http://localhost:15672">http://localhost:15672</a> (guest/guest). AMQP port 5672 carries messages. Gateway is on port 8888 and Keycloak is on port 8090.</p>
+<p class="block-label"><span>Postman or PowerShell - step 2</span></p><pre># In Postman: POST http://localhost:8888/api/teams/create with Bearer Token and raw JSON body
+# Or execute in PowerShell:
+$token = (Invoke-RestMethod -Method Post -Uri "http://localhost:8090/realms/master/protocol/openid-connect/token" -Body @{ grant_type="client_credentials"; client_id="tournament-app"; client_secret="uzevidMRLiXoeTRbdtCdmg0uovcZhTfu" }).access_token
+$token | Set-Clipboard
+$token
+$body = @{ teamName="Test Team"; coachName="Test Coach"; tournamentCode="PL"; email="test@example.com"; mobileNumber="123456789" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "http://localhost:8888/api/teams/create" -Headers @{ Authorization="Bearer $token"; "Content-Type"="application/json" } -Body $body</pre><p>Expect 201 Created. Team 1 is seeded, so the first new Team is ID 2. Wait a few seconds for RabbitMQ messaging, then:</p><p class="block-label"><span>Postman or PowerShell - step 3</span></p><pre># Postman: GET http://localhost:8888/api/teams/2 with Bearer Token
+# Or PowerShell:
+Invoke-RestMethod -Uri "http://localhost:8888/api/teams/2" -Headers @{ Authorization="Bearer $token" }</pre>
+<p class="block-label"><span>PowerShell - step 4</span></p><pre>docker compose logs --tail 30 message teams-ms rabbit</pre><p class="result">Check <code>teamDto.communicationDone</code> is true. The final Message service is broker-based, so trigger it by creating a Team rather than calling a temporary HTTP function endpoint.</p></section>
+</div><!-- end part1-runbooks -->
+
+<!-- ========================================================================================= -->
+<!-- PART 2: ARCHITECTURAL DEEP-DIVE & PORT RATIONALIZATION                                    -->
+<!-- ========================================================================================= -->
+<section id="part2-deepdive" class="deepdive-container">
+  
+  <div class="card deepdive-hero">
+    <span class="phase-tag tag-blue" style="background:#1e3a5f;color:#93c5fd;border-color:#2563eb;">Architectural Analysis &amp; System Design</span>
+    <h2>Part 2: Architectural Deep-Dive &amp; Port Rationalization</h2>
+    <p>A rigorous, end-to-end breakdown of the microservices system built across the 13 course sections. This guide analyzes how our distributed system evolved from basic REST endpoints into a resilient, containerized, secured, and event-driven enterprise architecture, explaining the engineering rationale behind every chosen port, protocol, and network topology.</p>
+  </div>
+
+  <!-- Master Port Matrix Table -->
+  <div class="card">
+    <h3>Master Port Allocation &amp; Network Mapping Matrix</h3>
+    <p>In distributed microservices, network ports serve two critical architectural functions: <strong>host socket uniqueness</strong> (preventing <code>BindException</code> when multiple processes run concurrently on the same machine) and <strong>infrastructure domain isolation</strong> (clearly segregating client traffic, discovery registries, config servers, database engines, message brokers, and identity providers).</p>
+    <div class="spec-table-wrap">
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>Port (Host : Container)</th>
+            <th>Service / Component</th>
+            <th>Network Scope</th>
+            <th>Protocol</th>
+            <th>Architectural Role &amp; Selection Rationale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="port-badge">8080 : 8080</span></td>
+            <td><strong>Tournament Microservice</strong> (Instance 1)</td>
+            <td>Host / Docker Bridge</td>
+            <td>HTTP / REST</td>
+            <td>Default standard Spring Boot HTTP port. Exposes tournament endpoints (<code>/api/tournaments/{code}</code>). In local dev, it is unique to Tournament. In Docker Compose, it represents the primary Tournament container.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">8081 : 8081</span></td>
+            <td><strong>Team Microservice</strong></td>
+            <td>Host / Docker Bridge</td>
+            <td>HTTP / REST</td>
+            <td>Assigned to Team to avoid colliding with 8080 on localhost. Exposes team management endpoints (<code>/api/teams/{id}</code>) and acts as an internal HTTP client invoking Tournament.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">8082 : 8080</span></td>
+            <td><strong>Tournament Microservice</strong> (Instance 2, Local)</td>
+            <td>Host (Local Java process)</td>
+            <td>HTTP / REST</td>
+            <td>Used in Section 3 for the second local Tournament process started via <code>--server.port=8082</code>, allowing dual registration with Eureka without port conflict on Windows.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">8083 : 8080</span></td>
+            <td><strong>Tournament Standalone Container</strong></td>
+            <td>Host &rarr; Docker Container</td>
+            <td>HTTP / REST</td>
+            <td>Used in Section 6 to test the standalone Docker image. Port 8083 on the host maps to internal port 8080 inside the container, preventing clashes with any local Spring Boot apps on 8080.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">8084 : 8080</span></td>
+            <td><strong>Tournament Microservice</strong> (Instance 2, Compose)</td>
+            <td>Host &rarr; Docker Container</td>
+            <td>HTTP / REST</td>
+            <td>In Docker Compose (Sections 8&ndash;13), both Tournament containers listen on port 8080 internally. The second instance is published to host port 8084 to prevent a host port collision while demonstrating round-robin load balancing.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">8761 : 8761</span></td>
+            <td><strong>Eureka Service Registry</strong></td>
+            <td>Host / Docker Bridge</td>
+            <td>HTTP / REST</td>
+            <td>The canonical industry standard default port for Netflix Eureka Server. Houses the live service registry and web dashboard where all instances register heartbeats.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">8888 : 8888</span></td>
+            <td><strong>Spring Cloud API Gateway</strong></td>
+            <td>Host / Public Edge</td>
+            <td>HTTP / Reactive Netty</td>
+            <td>The single unified front-door entry point for all external clients (browsers, Postman, mobile). Routes dynamically to internal microservices via <code>lb://</code> URI schemes.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">9999 : 9999</span></td>
+            <td><strong>Spring Cloud Config Server</strong></td>
+            <td>Host / Internal Management</td>
+            <td>HTTP / REST</td>
+            <td>High-range port assigned to Config Server to strictly isolate management/bootstrap traffic from business application traffic (8080s) and discovery (8761).</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">3306 : 3306</span></td>
+            <td><strong>MySQL Database Server</strong></td>
+            <td>Host &rarr; Docker Container</td>
+            <td>TCP / MySQL Protocol</td>
+            <td>Standard MySQL listener port. Published to host so desktop database inspection tools (Workbench, DBeaver) can query tables directly via <code>localhost:3306</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">5672 : 5672</span></td>
+            <td><strong>RabbitMQ Message Broker</strong></td>
+            <td>Docker Network / Host</td>
+            <td>AMQP 0-9-1</td>
+            <td>Standard AMQP binary protocol port used by Spring Cloud Bus and Spring Cloud Stream to publish and consume distributed events.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">15672 : 15672</span></td>
+            <td><strong>RabbitMQ Management Console</strong></td>
+            <td>Host / Web UI</td>
+            <td>HTTP / HTML</td>
+            <td>Web dashboard port for human operators to inspect queues, exchanges, bindings, and message delivery rates.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">8090 : 8080</span></td>
+            <td><strong>Keycloak IAM Server</strong></td>
+            <td>Host &rarr; Docker Container</td>
+            <td>HTTP / OAuth2 / OIDC</td>
+            <td>Keycloak listens on internal port 8080 inside its container. It is published to host port 8090 so developers can access the Admin Console and request JWT tokens without colliding with microservice 8080.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">5432 (Internal)</span></td>
+            <td><strong>PostgreSQL Database (Keycloak)</strong></td>
+            <td>Docker Network Only</td>
+            <td>TCP / PostgreSQL Wire</td>
+            <td>Standard PostgreSQL port. Kept strictly private inside Docker network <code>rayen-net</code> (not published to host) to enforce security boundaries for identity data.</td>
+          </tr>
+          <tr>
+            <td><span class="port-badge">9010 (Internal)</span></td>
+            <td><strong>Message Microservice</strong></td>
+            <td>Docker Network Only</td>
+            <td>Spring Cloud Stream</td>
+            <td>Configured application port for Message service. Runs purely as an event consumer/producer with no Web starter or public REST endpoints.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PHASE 1 DEEP-DIVE -->
+  <div class="card phase-card phase-1">
+    <div class="phase-header">
+      <span class="phase-tag tag-blue">Phase 1 &bull; Sections 01 to 06</span>
+      <h3>Microservices Foundation, Discovery &amp; Containerization</h3>
+    </div>
+    <p>Phase 1 establishes the architectural baseline of our distributed system. We moved away from monolithic design by splitting domain responsibilities into independent services, establishing point-to-point communication, introducing centralized dynamic service discovery, adding edge routing, externalizing configuration, and packaging applications into portable Docker images.</p>
+
+    <div class="sec-breakdown">
+      <h4>Section 1: Microservices Creation (SECTION_02_CREA_MS) <span class="pdf-tag">📄 01+Création+des+microservices.pdf</span> <span class="tech-pill">Spring Boot &bull; Spring Data JPA &bull; H2</span></h4>
+      <p><strong>What we did:</strong> We developed two completely decoupled Spring Boot applications: <code>tournament-microservice</code> and <code>team-microservice</code>. Each service owns its own database schema, domain models, and REST controllers:</p>
+      <ul>
+        <li><strong>Tournament Microservice:</strong> Manages tournament competitions. Entity <code>Tournament</code> stores <code>id</code>, <code>tournamentCode</code> (e.g., <code>PL</code>, <code>CL</code>), <code>tournamentName</code>, and <code>tournamentDescription</code>. Seeded at startup with Premier League and Champions League.</li>
+        <li><strong>Team Microservice:</strong> Manages clubs and teams. Entity <code>Team</code> stores <code>id</code>, <code>teamName</code>, <code>tournamentCode</code>, and coach details. Seeded with Arsenal (linked to tournament <code>PL</code>).</li>
+      </ul>
+      <p><strong>Port Selection Rationale (8080 vs 8081):</strong> Standard Spring Boot defaults to port 8080. If both applications attempted to run on 8080 simultaneously on a single operating system, the second process would immediately crash with <code>java.net.BindException: Address already in use</code>. We assigned port <strong>8080</strong> to Tournament and explicitly configured <code>server.port: 8081</code> for Team, allowing both JVMs to run side-by-side on localhost.</p>
+    </div>
+
+    <div class="sec-breakdown">
+      <h4>Section 2: Synchronous Service-to-Service Communication (SECTION_03_COMM_MS) <span class="pdf-tag">📄 02+Communication+entre+les+microservices+avec+Spring+Cloud.pdf</span> <span class="tech-pill">WebClient &bull; Spring Cloud OpenFeign</span></h4>
+      <p><strong>What we did:</strong> In a microservices architecture, a single business transaction often requires data owned by multiple services. When a client requests a team via <code>GET /api/teams/1</code>, the Team service must dynamically fetch the associated Tournament data and assemble a unified response (<code>ResponseDto</code> containing both <code>teamDto</code> and <code>tournamentDto</code>).</p>
+      <ul>
+        <li><strong>Approach A (WebClient):</strong> Reactive HTTP client provided by Spring WebFlux. We injected a <code>WebClient</code> bean and called <code>.get().uri("http://localhost:8080/api/tournaments/" + code).retrieve().bodyToMono(TournamentDto.class).block()</code>.</li>
+        <li><strong>Approach B (Declarative OpenFeign):</strong> Replaced imperative HTTP code with an interface annotated with <code>@FeignClient(value = "TOURNAMENT-MICROSERVICE", url = "http://localhost:8080")</code>. Spring dynamically generates the proxy implementation at runtime.</li>
+      </ul>
+      <p><strong>Why this matters &amp; its limitation:</strong> Hardcoding <code>url = "http://localhost:8080"</code> creates rigid network coupling. If the Tournament service changes host, fails, or scales to multiple instances, the Team service breaks.</p>
+    </div>
+
+    <div class="sec-breakdown">
+      <h4>Section 3: Dynamic Service Discovery with Eureka (SECTION_04_EUREKA) <span class="pdf-tag">📄 03+Spring+Cloud+Netflix+Eureka.pdf</span> <span class="tech-pill">Netflix Eureka &bull; Client-Side Load Balancing</span></h4>
+      <p><strong>What we did:</strong> We eliminated hardcoded addresses by introducing Netflix Eureka Server (<code>eurekaserver</code>). Both Tournament and Team became Eureka clients (<code>@EnableDiscoveryClient</code>). They register their service names (<code>TOURNAMENT-MICROSERVICE</code>, <code>TEAM-MICROSERVICE</code>) with Eureka upon startup and send periodic heartbeats every 30 seconds.</p>
+      <p><strong>Dual-Instance Testing:</strong> We launched two concurrent instances of Tournament:</p>
+      <ul>
+        <li>Instance 1 running on port <strong>8080</strong>.</li>
+        <li>Instance 2 packaged as a JAR and launched with <code>--server.port=8082</code>.</li>
+      </ul>
+      <p><strong>Port Selection Rationale (8761, 8080, 8082, 8081):</strong> Port <strong>8761</strong> is the universally recognized convention for Eureka. Port <strong>8082</strong> was selected for Tournament Instance 2 to avoid port collision with Instance 1 (8080) and Team (8081). When Team makes Feign calls, it queries Eureka on 8761 to resolve available instances, and Spring Cloud LoadBalancer automatically balances traffic between 8080 and 8082.</p>
+    </div>
+
+    <div class="sec-breakdown">
+      <h4>Section 4: Edge Routing with Spring Cloud Gateway (SECTION_05_GATEWAY) <span class="pdf-tag">📄 04+Spring+Cloud+Api+Gateway.pdf</span> <span class="tech-pill">Spring Cloud Gateway &bull; Reactive Netty</span></h4>
+      <p><strong>What we did:</strong> We built an API Gateway (<code>gatewayserver</code>) built on Netty and Spring WebFlux. Gateway serves as the single unified entry point for all frontend applications and external clients.</p>
+      <p><strong>Dynamic Route Configuration:</strong> Instead of clients calling microservices directly on individual ports (8080, 8081, 8082), clients send all requests to Gateway on port <strong>8888</strong>. Gateway inspects the URL path and queries Eureka to route the request:</p>
+      <ul>
+        <li>Path <code>/api/tournaments/**</code> &rarr; routed to <code>lb://TOURNAMENT-MICROSERVICE</code></li>
+        <li>Path <code>/api/teams/**</code> &rarr; routed to <code>lb://TEAM-MICROSERVICE</code></li>
+      </ul>
+      <p><strong>Port Selection Rationale (8888):</strong> Port 8888 is established as the public perimeter gateway port. Internal service ports (8080, 8081) remain private backend addresses.</p>
+    </div>
+
+    <div class="sec-breakdown">
+      <h4>Section 5: Centralized Configuration Server (SECTION_06_CONFIGSERVER) <span class="pdf-tag">📄 05+Spring+Cloud+Config+Server.pdf</span> <span class="tech-pill">Spring Cloud Config &bull; Profile Management</span></h4>
+      <p><strong>What we did:</strong> We separated application source code from environment-specific configuration by introducing <code>configserver</code>. Config Server serves externalized YAML property files (such as <code>tournament-prod.yml</code> and <code>team-prod.yml</code>) over HTTP.</p>
+      <p><strong>Port Selection Rationale (9999):</strong> High port <strong>9999</strong> isolates configuration infrastructure from application runtime ports (8080s) and discovery (8761). On bootstrap, microservices query <code>http://localhost:9999/{application}/{profile}</code> to fetch build versions, author metadata, and database credentials before launching their Spring application context.</p>
+    </div>
+
+    <div class="sec-breakdown">
+      <h4>Section 6: Container Packaging with Docker (SECTION_07_Intro_to_Docker) <span class="pdf-tag">📄 06+Introduction+à+Docker_v2.pdf</span> <span class="tech-pill">Docker &bull; OCI Image &bull; OpenJDK Slim</span></h4>
+      <p><strong>What we did:</strong> We packaged <code>tournament-microservice</code> into an immutable Docker image (<code>rayen/tournament:v1</code>) using a multi-stage Dockerfile based on OpenJDK 21. We launched it as a standalone container.</p>
+      <p><strong>Port Selection Rationale (8083:8080):</strong> Mapping host port <strong>8083</strong> to container port <strong>8080</strong> ensures that running the containerized service on the developer's workstation will not collide with any local IDE or Java process already occupying port 8080 on the host.</p>
+    </div>
+
+    <div class="diagram-box">
+<span class="hl-cyan">+---------------------------------------------------------------------------------------------------+</span>
+<span class="hl-cyan">|</span>                         <span class="hl-yellow">PHASE 1 ARCHITECTURE: FOUNDATIONS &amp; DISCOVERY</span>                             <span class="hl-cyan">|</span>
+<span class="hl-cyan">+---------------------------------------------------------------------------------------------------+</span>
+
+       <span class="hl-purple">[Client / Browser / Postman]</span>
+                    |
+                    | (Requests: /api/tournaments/** or /api/teams/**)
+                    v
+    +-------------------------------+
+    |  <span class="hl-green">Spring Cloud Gateway</span>         | <span class="dim">(Port 8888 - Unified Front-Door)</span>
+    +-------------------------------+
+         |                     |
+         | (Fetch routes)      | (Proxy via lb://)
+         v                     |
+    +-----------------------+  |
+    |  <span class="hl-yellow">Eureka Registry</span>      |  | <span class="dim">(Port 8761 - Heartbeats &amp; Resolution)</span>
+    +-----------------------+  |
+         ^         ^           |
+         |         |           |
+    (Register) (Register)      +---------------------------------+
+         |         |                                             |
+         |         +---------------------------+                 |
+         |                                     |                 |
+         v                                     v                 v
++-------------------------------+     +-------------------------------+
+|  <span class="hl-cyan">Tournament Microservice</span>      |     |  <span class="hl-cyan">Team Microservice</span>            |
+|  Instance 1: <span class="hl-yellow">Port 8080</span>        | &lt;-- |  <span class="hl-yellow">Port 8081</span>                    |
+|  Instance 2: <span class="hl-yellow">Port 8082</span>        |Feign|  (Aggregates Team + Tourn)    |
++-------------------------------+     +-------------------------------+
+         ^                                     ^
+         |                                     |
+         +-----------------+-------------------+
+                           | (Bootstrap config on startup)
+                           v
+              +-------------------------------+
+              |  <span class="hl-green">Spring Cloud Config Server</span>   | <span class="dim">(Port 9999 - Centralized YAML)</span>
+              +-------------------------------+
+    </div>
+  </div>
+
+  <!-- PHASE 2 DEEP-DIVE -->
+  <div class="card phase-card phase-2">
+    <div class="phase-header">
+      <span class="phase-tag tag-teal">Phase 2 &bull; Sections 07 to 10</span>
+      <h3>Persistence, Orchestration, Dynamic Bus &amp; Resilience</h3>
+    </div>
+    <p>Phase 2 transforms our microservices from local development prototypes into production-grade distributed infrastructure. We integrated containerized relational databases, orchestrated multi-container stacks with healthcheck dependencies, implemented zero-downtime configuration propagation with RabbitMQ, and added fault-tolerant circuit breakers with graceful fallbacks.</p>
+
+    <div class="sec-breakdown">
+      <h4>Section 7: Containerized MySQL Persistence (SECTION_08_Mysql_As_Docker) <span class="pdf-tag">📄 07+Utiliser+la+BD+Mysql+en+tant+que+Docker.pdf</span> <span class="tech-pill">MySQL 8.0 &bull; Docker Bridge Network &bull; JDBC</span></h4>
+      <p><strong>What we did:</strong> In-memory H2 databases lose all records when a process restarts. We deployed a production-grade MySQL container on a dedicated Docker bridge network (<code>my-net</code>) and reconfigured <code>tournament-microservice</code> to connect via JDBC.</p>
+      <p><strong>Port Selection Rationale (3306:3306):</strong> Standard MySQL operates on port <strong>3306</strong>. By publishing <code>3306:3306</code> to the Windows host, developers can connect graphical database tools (DBeaver, MySQL Workbench) to <code>localhost:3306</code> with credentials <code>root/root</code>. Meanwhile, containers on <code>my-net</code> resolve MySQL using Docker's internal DNS resolver: <code>jdbc:mysql://mysqldb:3306/test</code>. We verified automatic schema creation and verified records via <code>docker exec mysqldb mysql ...</code>.</p>
+    </div>
+
+    <div class="sec-breakdown">
+      <h4>Section 8: Full Stack Docker Compose Orchestration (SECTION_09_DOCKERIZE_VOS_MS) <span class="pdf-tag">📄 08+Dockerize+vos+Micorservices_V2.pdf</span> <span class="tech-pill">Docker Compose &bull; Healthchecks &bull; Failover</span></h4>
+      <p><strong>What we did:</strong> Managing multiple standalone <code>docker run</code> commands is fragile. We created a comprehensive <code>docker-compose.yml</code> file orchestrating 6 interrelated services: <code>eurekaserver</code>, <code>configserver</code>, <code>tournaments-ms</code>, <code>tournaments-ms2</code>, <code>teams-ms</code>, and <code>gatewayserver</code>.</p>
+      <p><strong>Healthchecks &amp; Startup Sequencing:</strong> We added Actuator healthchecks (<code>curl -f http://localhost:.../actuator/health</code>) and configured <code>depends_on: { condition: service_healthy }</code> so dependent microservices only launch after Config Server and Eureka are fully operational.</p>
+      <p><strong>Port Mapping Analysis:</strong></p>
+      <ul>
+        <li><code>tournaments-ms</code> maps container port 8080 to host port <strong>8080</strong>.</li>
+        <li><code>tournaments-ms2</code> maps container port 8080 to host port <strong>8084</strong>.</li>
+      </ul>
+      <p><strong>Why 8084?</strong> Inside the Docker network, both containers have distinct IP addresses and can listen on 8080 concurrently without conflict. However, when publishing ports to the single host OS network interface, each host port must be strictly unique. Mapping Instance 2 to <strong>8084</strong> satisfies this requirement.</p>
+      <p><strong>High Availability Verification:</strong> We executed <code>docker compose stop tournaments-ms</code>. Gateway immediately detected the remaining healthy instance and continued routing all requests through <code>tournaments-ms2</code> with zero downtime.</p>
+    </div>
+
+    <div class="sec-breakdown">
+      <h4>Section 9: Dynamic Configuration with Spring Cloud Bus &amp; RabbitMQ (SECTION_10_Cloud Bus) <span class="pdf-tag">📄 09+Spring+Cloud+Bus+et+Rabbit+MQ.pdf</span> <span class="tech-pill">RabbitMQ &bull; Spring Cloud Bus &bull; AMQP</span></h4>
+      <p><strong>What we did:</strong> In a production cluster with dozens of microservice instances, changing a property in Config Server requires either restarting every container or calling <code>/actuator/refresh</code> on every single instance individually. Spring Cloud Bus solves this by connecting all microservices to a lightweight message broker (RabbitMQ).</p>
+      <p><strong>Port Selection Rationale (5672 &amp; 15672):</strong></p>
+      <ul>
+        <li><strong>5672:</strong> Standard binary AMQP port used by Spring Cloud Bus to broadcast and consume messages.</li>
+        <li><strong>15672:</strong> RabbitMQ Web Management Console port for developers to inspect queues and exchanges.</li>
+      </ul>
+      <p><strong>The Refresh Sequence:</strong> We updated <code>author.name</code> in <code>team-prod.yml</code>. We then sent a single <code>POST http://localhost:8080/actuator/busrefresh</code>. Tournament published a <code>RefreshRemoteApplicationEvent</code> to RabbitMQ. The Team service consumed the event and dynamically updated its injected <code>@ConfigurationProperties</code> live without requiring a JVM restart.</p>
+    </div>
+
+    <div class="sec-breakdown">
+      <h4>Section 10: Fault Tolerance with Resilience4J (SECTION_11_Resilience4J) <span class="pdf-tag">📄 10+Résilience+des+microservices+avec+Resilience4J.pdf</span> <span class="tech-pill">Resilience4J &bull; Circuit Breakers &bull; Fallbacks</span></h4>
+      <p><strong>What we did:</strong> In distributed architectures, downstream service outages cause cascading failures (thread pool exhaustion, timeouts, and system crashes). We implemented Resilience4J Circuit Breaker, TimeLimiter, and Fallback patterns across two protective tiers:</p>
+      <ol>
+        <li><strong>Service-to-Service Tier (Team &rarr; Tournament):</strong> When all Tournament instances were shut down, Team's Feign client intercepted the failure and executed <code>getTournamentFallback()</code>, returning the team record with <code>tournamentName: NOT AVAILABLE</code> instead of crashing.</li>
+        <li><strong>Edge Gateway Tier (Gateway &rarr; Team):</strong> When Team was stopped, 10 consecutive requests exceeded Gateway's 50% failure threshold, causing the circuit breaker to transition from <code>CLOSED</code> to <code>OPEN</code> state. Subsequent calls were fast-failed with HTTP 503 and a clean fallback message: <em>"An error occurred. Please contact the administrator. !"</em>.</li>
+      </ol>
+    </div>
+
+    <div class="diagram-box">
+<span class="hl-cyan">+---------------------------------------------------------------------------------------------------+</span>
+<span class="hl-cyan">|</span>                    <span class="hl-yellow">PHASE 2 ARCHITECTURE: ORCHESTRATION, BUS &amp; RESILIENCE</span>                         <span class="hl-cyan">|</span>
+<span class="hl-cyan">+---------------------------------------------------------------------------------------------------+</span>
+
+                                 <span class="hl-purple">[Client Traffic]</span>
+                                        |
+                                        v
+                       +----------------------------------+
+                       |  <span class="hl-green">Spring Cloud Gateway (:8888)</span>     |
+                       |  <span class="hl-yellow">[Resilience4J Circuit Breaker]</span>  |
+                       +----------------------------------+
+                                        |
+                 +----------------------+----------------------+
+                 | (Route via lb://)                            | (Route via lb://)
+                 v                                             v
++-----------------------------------+         +-----------------------------------+
+|  <span class="hl-cyan">Tournament Microservices</span>         |         |  <span class="hl-cyan">Team Microservice (:8081)</span>        |
+|  Instance 1: <span class="hl-yellow">Port 8080</span>            |         |  <span class="hl-yellow">[Resilience4J Fallback Handler]</span> |
+|  Instance 2: <span class="hl-yellow">Port 8084</span>            | &lt;====== |  (Returns 'NOT AVAILABLE' if down)|
++-----------------------------------+  Feign  +-----------------------------------+
+       |                    |                                  |
+       | (JDBC)             | (AMQP Bus Refresh Event)         | (AMQP Bus Refresh Event)
+       v                    v                                  v
++---------------+  +--------------------------------------------------------------+
+| <span class="hl-green">MySQL (:3306)</span> |  |  <span class="hl-yellow">RabbitMQ Broker</span> (<span class="hl-cyan">Port 5672 AMQP</span> | <span class="hl-cyan">Port 15672 Web Console</span>)      |
+| Tables:       |  |  Exchange: <span class="hl-green">springCloudBus</span> (Dynamic property synchronization)    |
+| tournament    |  +--------------------------------------------------------------+
++---------------+
+    </div>
+  </div>
+
+  <!-- PHASE 3 DEEP-DIVE -->
+  <div class="card phase-card phase-3">
+    <div class="phase-header">
+      <span class="phase-tag tag-purple">Phase 3 &bull; Sections 11 to 13</span>
+      <h3>Enterprise Security &amp; Asynchronous Event Architecture</h3>
+    </div>
+    <p>Phase 3 completes the enterprise architecture with two critical capabilities: <strong>zero-trust perimeter security</strong> using Keycloak Identity &amp; Access Management (OAuth2/OIDC) and <strong>asynchronous event-driven choreography</strong> using RabbitMQ and Spring Cloud Stream.</p>
+
+    <div class="sec-breakdown">
+      <h4>Section 11: Securing API Gateway with Keycloak (SECTION_12_Securing_gateway) <span class="pdf-tag">📄 11++Securing+microservices.pdf</span> <span class="tech-pill">Keycloak &bull; OAuth2 Resource Server &bull; JWT &bull; RBAC</span></h4>
+      <p><strong>What we did:</strong> Microservices should never be exposed unauthenticated to the public internet. We configured Spring Cloud Gateway as an OAuth2 Resource Server backed by Keycloak IAM.</p>
+      <p><strong>Port Selection Rationale (8090 vs 8080):</strong> Inside Docker, Keycloak listens on port 8080. If published directly as <code>8080:8080</code> on the host machine, it would clash with <code>tournaments-ms</code> (which also uses 8080). We mapped Keycloak to host port <strong>8090</strong> (<code>8090:8080</code>). Developers access the Keycloak Admin Console at <code>http://localhost:8090/admin/</code>, while Gateway sits on port <strong>8888</strong>.</p>
+      <p><strong>Authentication &amp; Role-Based Access Control (RBAC):</strong></p>
+      <ul>
+        <li>Clients authenticate against Keycloak using the OAuth2 <code>client_credentials</code> grant and receive a digitally signed JSON Web Token (JWT).</li>
+        <li>When a request reaches Gateway (8888), Gateway intercepts it via reactive security filters and verifies the cryptographic signature against Keycloak's JSON Web Key Set (JWKS) certificates endpoint.</li>
+        <li>We authored a custom <code>KeycloakRoleConverter</code> that extracts realm roles from the token's <code>realm_access.roles</code> claim array and converts them to Spring Security <code>GrantedAuthority</code> objects.</li>
+        <li><strong>Role Rule for Tournament:</strong> Route <code>/api/tournaments/**</code> strictly requires <code>ROLE_ADMIN</code>. Validated: non-admin tokens receive <strong>403 Forbidden</strong>; admin tokens receive <strong>200 OK</strong>.</li>
+        <li><strong>Authentication Rule for Team:</strong> Route <code>/api/teams/**</code> requires valid authentication (any authenticated token).</li>
+        <li>Unauthenticated requests receive <strong>401 Unauthorized</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="sec-breakdown">
+      <h4>Section 12: Production Security with PostgreSQL Persistence (SECTION_13_Securing_Docker) <span class="pdf-tag">📄 13++Securing+microservices+using+docker.pdf</span> <span class="tech-pill">PostgreSQL &bull; Named Docker Volume &bull; Container Isolation</span></h4>
+      <p><strong>What we did:</strong> In Section 11, Keycloak stored its realm data in an ephemeral in-memory database, meaning all clients, secrets, and roles were wiped whenever containers stopped. In Section 12, we hardened the deployment by backing Keycloak with an enterprise PostgreSQL database container (<code>keycloakdb</code>) attached to a named Docker volume (<code>kc_pg_data</code>).</p>
+      <p><strong>Port Selection &amp; Network Isolation (5432):</strong> PostgreSQL listens on standard port <strong>5432</strong>. Crucially, port 5432 is <em>not published to the host OS</em>. It is accessible exclusively within the internal Docker network <code>rayen-net</code>, safeguarding the identity database from external network probes.</p>
+      <p><strong>Persistence Verification:</strong> We created the <code>tournament-app</code> client and assigned the <code>ADMIN</code> role. We then executed <code>docker compose down --remove-orphans</code>, destroying all running containers. Upon running <code>docker compose up -d</code>, Keycloak reconnected to the <code>kc_pg_data</code> volume, and our configured client, secret, and roles remained completely intact without requiring any re-creation.</p>
+    </div>
+
+    <div class="sec-breakdown">
+      <h4>Section 13: Asynchronous Event-Driven Microservices (SECTION_14_Event_RabbitMQ) <span class="pdf-tag">📄 14+event+driven+ms+using+RabbitMQ.pdf</span> <span class="tech-pill">Spring Cloud Stream &bull; RabbitMQ &bull; Functional Choreography</span></h4>
+      <p><strong>What we did:</strong> Synchronous REST calls (such as Feign) introduce blocking threads and tight temporal coupling: if a downstream notification service is slow or down, the user's creation request hangs. We transformed this into an asynchronous event-driven architecture using Spring Cloud Stream 4.x and RabbitMQ, introducing a dedicated <code>message-microservice</code>.</p>
+      <p><strong>Port Selection Rationale:</strong></p>
+      <ul>
+        <li><strong>5672:</strong> RabbitMQ AMQP broker port carrying business event payloads.</li>
+        <li><strong>15672:</strong> RabbitMQ Management UI to observe message queues in real time.</li>
+        <li><strong>8888:</strong> Secure Gateway entry point.</li>
+        <li><strong>8090:</strong> Keycloak IAM server.</li>
+        <li><strong>9010 (Internal):</strong> Configured application port for <code>message-microservice</code>. Message service operates as a pure event subscriber/publisher; it has no web starter or HTTP controllers.</li>
+      </ul>
+      <p><strong>The End-to-End Asynchronous Choreography:</strong></p>
+      <ol>
+        <li>Client sends authenticated <code>POST http://localhost:8888/api/teams/create</code> with new team details.</li>
+        <li>Team service persists the record into database with initial status <code>communicationDone = false</code>.</li>
+        <li>Team service publishes a <code>TeamMsgDto</code> JSON message to RabbitMQ exchange <code>send-communication</code> (via functional binding <code>sendCommunication-out-0</code>).</li>
+        <li>Client immediately receives <strong>201 Created</strong> response (zero blocking, high throughput).</li>
+        <li><code>message-microservice</code> consumes the message from queue <code>send-communication.message</code>, executes SMS/Email notification functions (<code>MessageFunctions.java</code>), and publishes a confirmation event to exchange <code>communication-sent</code> (via binding <code>email-out-0</code>).</li>
+        <li>Team service consumes the callback from queue <code>communication-sent.teams-ms</code>, loads the team by ID, and updates the database row to <code>communicationDone = true</code>.</li>
+        <li>Client verifies the asynchronous completion by sending <code>GET /api/teams/2</code>, confirming <code>teamDto.communicationDone: true</code>.</li>
+      </ol>
+    </div>
+
+    <div class="diagram-box">
+<span class="hl-cyan">+---------------------------------------------------------------------------------------------------+</span>
+<span class="hl-cyan">|</span>                 <span class="hl-yellow">PHASE 3 ARCHITECTURE: SECURITY &amp; ASYNCHRONOUS EVENT CHOREOGRAPHY</span>                  <span class="hl-cyan">|</span>
+<span class="hl-cyan">+---------------------------------------------------------------------------------------------------+</span>
+
+ 1. Acquire JWT Token                           2. Authenticated Request
+<span class="hl-purple">[Client / Postman]</span> --- (OAuth2 Client Creds) --&gt; <span class="hl-green">Keycloak IAM (:8090)</span> [Backed by <span class="hl-cyan">PostgreSQL :5432</span>]
+       |                                                |
+       | (Authorization: Bearer &lt;JWT&gt;)                  | (Verify JWKS Certs)
+       v                                                v
++-----------------------------------------------------------------------------------+
+|  <span class="hl-green">Spring Cloud Gateway (:8888)</span>                                                     |
+|  &bull; Validates JWT Digital Signature via JWKS                                       |
+|  &bull; KeycloakRoleConverter extracts 'ROLE_ADMIN' &amp; User Claims                       |
+|  &bull; /api/tournaments/** &rarr; Requires ROLE_ADMIN (403 Forbidden if missing)          |
+|  &bull; /api/teams/**       &rarr; Requires Authenticated User                             |
++-----------------------------------------------------------------------------------+
+                                         |
+                                         | 3. Route POST /api/teams/create
+                                         v
++-----------------------------------------------------------------------------------+
+|  <span class="hl-cyan">Team Microservice (:8081)</span>                                                        |
+|  &bull; Inserts Team into Database (Initial State: <span class="hl-yellow">communicationDone = false</span>)          |
+|  &bull; Returns <span class="hl-green">201 Created</span> immediately to Client (Non-Blocking)                    |
+|  &bull; Emits Event: <span class="hl-purple">TeamMsgDto</span>                                                         |
++-----------------------------------------------------------------------------------+
+         |                                                 ^
+         | 4. Publish Event                                | 7. Callback Event
+         v                                                 |    (Update to communicationDone = true)
++-----------------------------------------------------------------------------------+
+|  <span class="hl-yellow">RabbitMQ Message Broker (:5672 AMQP | :15672 Management UI)</span>                      |
+|  &bull; Exchange: <span class="hl-green">send-communication</span>  &rarr; Queue: <span class="hl-cyan">send-communication.message</span>             |
+|  &bull; Exchange: <span class="hl-green">communication-sent</span> &rarr; Queue: <span class="hl-cyan">communication-sent.teams-ms</span>           |
++-----------------------------------------------------------------------------------+
+         |                                                 ^
+         | 5. Consume New Team Event                       | 6. Publish Notification Result
+         v                                                 |
++-----------------------------------------------------------------------------------+
+|  <span class="hl-cyan">Message Microservice (:9010 Internal - Headless Stream Functions)</span>               |
+|  &bull; Consumes Event from send-communication.message                                 |
+|  &bull; Executes MessageFunctions: Sends simulated SMS &amp; Email                        |
+|  &bull; Publishes Confirmation Event with Team ID to communication-sent                |
++-----------------------------------------------------------------------------------+
+    </div>
+  </div>
+
+</section>
+<!-- ========================================================================================= -->
+<!-- END OF PART 2                                                                             -->
+<!-- ========================================================================================= -->
+
+<footer>Prepared from the PDFs, your pasted PowerShell commands and the matching workspace projects. Endpoints and file references use your Tournament and Team code; the professor sample names are listed in the mapping above.</footer>
+</main>
+<script>
+document.querySelectorAll('.view-tab-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.view-tab-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+window.addEventListener('scroll', () => {
+  const deepdive = document.getElementById('part2-deepdive');
+  if (deepdive) {
+    const rect = deepdive.getBoundingClientRect();
+    const tabs = document.querySelectorAll('.view-tab-btn');
+    if (rect.top <= 150) {
+      tabs[0]?.classList.remove('active');
+      tabs[1]?.classList.add('active');
+    } else {
+      tabs[0]?.classList.add('active');
+      tabs[1]?.classList.remove('active');
+    }
+  }
+});
+</script>
+</body></html>
+
+

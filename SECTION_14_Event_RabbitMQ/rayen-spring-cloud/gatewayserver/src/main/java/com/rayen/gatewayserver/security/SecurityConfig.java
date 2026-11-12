@@ -20,7 +20,7 @@ public class SecurityConfig {
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity serverHttpSecurity) {
         serverHttpSecurity.authorizeExchange(exchanges ->
                         exchanges.pathMatchers("/api/tournaments/**").hasRole("ADMIN")
-                                .pathMatchers("/api/teams/**").authenticated()
+                                .pathMatchers("/api/teams/**").hasRole("ADMIN")
                                 .anyExchange().permitAll())
                 .oauth2ResourceServer(oAuth2ResourceServerSpec ->
                         oAuth2ResourceServerSpec.jwt(jwtSpec ->

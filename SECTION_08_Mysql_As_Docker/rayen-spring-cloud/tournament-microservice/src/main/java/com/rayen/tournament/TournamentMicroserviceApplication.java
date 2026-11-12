@@ -17,14 +17,18 @@ public class TournamentMicroserviceApplication {
     @Bean
     CommandLineRunner commandLineRunner(TournamentRepository tournamentRepository) {
         return args -> {
-            tournamentRepository.save(Tournament.builder()
-                    .tournamentName("Premier League")
-                    .tournamentCode("PL")
-                    .build());
-            tournamentRepository.save(Tournament.builder()
-                    .tournamentName("Champions League")
-                    .tournamentCode("CL")
-                    .build());
+            if (tournamentRepository.findByTournamentCode("PL") == null) {
+                tournamentRepository.save(Tournament.builder()
+                        .tournamentName("Premier League")
+                        .tournamentCode("PL")
+                        .build());
+            }
+            if (tournamentRepository.findByTournamentCode("CL") == null) {
+                tournamentRepository.save(Tournament.builder()
+                        .tournamentName("Champions League")
+                        .tournamentCode("CL")
+                        .build());
+            }
         };
     }
 }

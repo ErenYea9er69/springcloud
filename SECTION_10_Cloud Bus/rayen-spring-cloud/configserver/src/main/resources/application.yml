@@ -10,6 +10,16 @@ spring:
       server:
         native:
           search-locations: "classpath:/config"
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
 # Example file-system repository:
 # search-locations: "file:///${user.home}/Desktop/Spring Cloud/SECTION_05_CONFIGSERVER/rayen-spring-cloud/config-repo"
 # Example git repository:

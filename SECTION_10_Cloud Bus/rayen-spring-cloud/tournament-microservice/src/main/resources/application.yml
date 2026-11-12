@@ -10,8 +10,8 @@ spring:
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST:localhost}
     port: 5672
-    username: guest
-    password: guest
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
   datasource:
     url: 'jdbc:h2:mem:tournamentdb'
   h2:
